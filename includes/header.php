@@ -23,7 +23,7 @@
     <div class="collapse navbar-collapse" id="navbarMenu">
       <ul class="navbar-nav ms-auto">
 
-      <li class="nav-item"><a class="nav-link" href="user_orders.php">User Orders</a></li>
+      <li class="nav-item"><a class="nav-link" href="/cafeteria/user_orders.php">User Orders</a></li>
           <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/orders">Manage Orders</a></li>
           <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/products">Manage Products</a></li>
           <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/categories">Manage Categories</a></li>
