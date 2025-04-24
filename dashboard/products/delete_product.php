@@ -9,14 +9,12 @@
 
     if ($result) {
         // Redirect to the products page with a success message
-        header("Location: index.php?message=Product deleted successfully.");
+        header("Location: index.php?message=Product deleted successfully!.");
         exit;
     } else {
         // Redirect to the products page with an error message
         header("Location: index.php?error=Failed to delete product.");
         exit;
     }
-
-
 
 ?>
