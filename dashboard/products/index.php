@@ -8,8 +8,6 @@ $result = mysqli_query($conn, $sql);
 ?>
 
 
-<div class="container">
-</div>
 <div class='container w-75 mt-5'>
 
 <h1 class="text-center text-muted">Admin products dashboard</h1>  
