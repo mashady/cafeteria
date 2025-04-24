@@ -9,7 +9,7 @@ include '../../db/connect.php';
     <div class="card shadow-sm mb-4">
         <div class="card-header d-flex justify-content-between align-items-center ">
             <h5 class="mb-0">Categories List</h5>
-            <a href="add_category.php" class="btn btn-primary btn-sm">
+            <a href="add.php" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus"></i> Add New Category
             </a>
         </div>
@@ -35,11 +35,15 @@ include '../../db/connect.php';
                                 echo "<td>" . $row['id'] . "</td>";
                                 echo "<td>" . $row['name'] . "</td>";
                                 echo "<td>
-                                        <a href='edit_category.php?id=" . $row['id'] . "' class='btn btn-sm btn-outline-primary me-1' title='Edit'>
-                                            <i class='fas fa-edit'></i>
+                                        <a href='edit.php?id=" . $row['id'] . "' class='btn btn-sm btn-outline-primary me-1' title='Edit'>
+                                            <i class='fas fa-edit'>
+                                            </i>
                                         </a>
                                         <button type='button' class='btn btn-sm btn-outline-danger' data-bs-toggle='modal' data-bs-target='#deleteModal".$row['id']."' title='Delete'>
+                                            <a href='delete.php?id=" . $row['id'] . "'  style='color: inherit; text-decoration: none;'>
                                             <i class='fas fa-trash'></i>
+                                        </a>    
+                                        
                                         </button>
                                       </td>";
                                 echo "</tr>";
@@ -57,7 +61,7 @@ include '../../db/connect.php';
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                <a href="delete_category.php?id='.$row['id'].'" class="btn btn-danger">Confirm Delete</a>
+                                                <a href="delete.php?id='.$row['id'].'" class="btn btn-danger">Confirm Delete</a>
                                             </div>
                                         </div>
                                     </div>
