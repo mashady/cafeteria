@@ -23,11 +23,11 @@
     <div class="collapse navbar-collapse" id="navbarMenu">
       <ul class="navbar-nav ms-auto">
 
-      <li class="nav-item"><a class="nav-link" href="/cafeteria/user_orders.php">User Orders</a></li>
-          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/orders">Manage Orders</a></li>
-          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/products">Manage Products</a></li>
-          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/categories">Manage Categories</a></li>
-          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/users">Manage Users</a></li>
+      <li class="nav-item"><a class="nav-link" href="/cafeteria/user_orders.php">My Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/orders">Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/products">Products</a></li>
+          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/categories">Categories</a></li>
+          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/users">Users</a></li>
           <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/checks">Checks</a></li>
           <li class="nav-item"><a class="nav-link" href="../cafeteria/login.php">Login</a></li>
       </ul>
