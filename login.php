@@ -34,16 +34,19 @@ if (isset($_POST["login"])){
           // Check if the user exists in the database
           $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$hashedPassword'";
           $result = mysqli_query($conn, $sql);
-  
           if (mysqli_num_rows($result) > 0) {
-              session_start();
-              $_SESSION['user'] = $email; // Set session variable with email or user ID
-              header("Location: user_home.php"); 
-              exit();
-          } else {
-              $passwordErr = "Incorrect email or password";
-          }
-      }
+            session_start();
+            $user = mysqli_fetch_assoc($result); // 🛠️ هنا نجيب بيانات المستخدم كمصفوفة
+        
+            $_SESSION['user'] = $user; // تقدر تخزن المصفوفة كاملة بالجلسة
+        
+            if ($user['role'] === 'admin') {
+                header("Location: ./dashboard/");
+            } else {
+                header("Location: user_home.php");
+            }
+            exit();
+        }}
   }
 
 }
