@@ -8,4 +8,4 @@ include '../../db/connect.php';
 </div>
 
 
-<?php include '../../includes/footer.php'; ?>
+<?php include './includes/footer.php'; ?>
