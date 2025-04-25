@@ -111,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="mb-3">
             <label for="price" class="form-label">Product Price</label>
-            <input type="number" name="price" class="form-control" id="price" value="<?= $_POST['price'] ?? '3.50' ?>" step="0.01" min="0">
+            <input type="number" name="price" class="form-control" id="price" value="<?= $_POST['price'] ?? '3.50 EGP' ?>" step="0.01" min="0">
             <?php if (!empty($errors['price'])): ?>
                 <div class="text-danger mt-1"><?= $errors['price'] ?></div>
             <?php endif; ?>
