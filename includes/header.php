@@ -29,7 +29,7 @@
           <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/categories">Manage Categories</a></li>
           <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/users">Manage Users</a></li>
           <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/checks">Checks</a></li>
-          <li class="nav-item"><a class="nav-link" href="/cafeteria/login.php">Login</a></li>
+          <li class="nav-item"><a class="nav-link" href="../cafeteria/login.php">Login</a></li>
       </ul>
     </div>
   </div>
