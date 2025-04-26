@@ -1,4 +1,4 @@
-```php
+
 <?php
 include '../../includes/header.php';
 include '../../db/connect.php';

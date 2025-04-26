@@ -33,7 +33,6 @@ $result = mysqli_query($conn, $sql);
                 <table class="table table-striped table-hover table-bordered">
                     <thead class="">
                         <tr>
-                            <th>ID</th>
                             <th>Room Name</th>
                             <th>Actions</th>
                         </tr>
@@ -43,7 +42,6 @@ $result = mysqli_query($conn, $sql);
                         if (mysqli_num_rows($result) > 0) {
                             while ($row = mysqli_fetch_assoc($result)) {
                                 echo "<tr>";
-                                echo "<td>" . $row['id'] . "</td>";
                                 echo "<td>" . htmlspecialchars($row['name']) . "</td>";
                                 echo "<td>
                                         <a href='edit.php?id=" . $row['id'] . "' class='btn btn-sm btn-outline-primary me-1' title='Edit'>
