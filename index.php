@@ -10,21 +10,26 @@
     $list_of_users = [];
     $result = mysqli_query($conn, "SELECT * FROM users");
     while ($row = mysqli_fetch_assoc($result)) {
-        $list_of_users[] = $row;
+        $list_of_users[] = $row['name'];
     }
-    $rooms = ['Room 101', 'Room 102', 'Room 103'];// not real
-    // this room willbe modified to be dynamic
+    
+    $rooms = [];
+    $result = mysqli_query($conn, "SELECT id, name FROM rooms");
+    while ($row = mysqli_fetch_assoc($result)) {
+        $rooms[] = $row;
+    }
+
     if(isset($_POST["btn"])){
-        $room = $_POST["room"];
+        $room_id = $_POST["room_id"]; 
         $notes = $_POST["notes"];
         $quantities = $_POST["qty"] ?? [];
         $total = $_POST["total"] ?? 0;
         
-        $user_id = $_SESSION['user_id'] ?? 1; // => todo: get user id from session only
+        $user_id = $_SESSION['user_id'] ?? 1;
         
-        $query = "INSERT INTO orders (user_id, notes, total, status) VALUES (?, ?, ?, 'processing')";
+        $query = "INSERT INTO orders (user_id, room_id, notes, total, status) VALUES (?, ?, ?, ?, 'processing')";
         $stmt = mysqli_prepare($conn, $query);
-        mysqli_stmt_bind_param($stmt, "isd", $user_id, $notes, $total);
+        mysqli_stmt_bind_param($stmt, "iisd", $user_id, $room_id, $notes, $total);
         
         if(mysqli_stmt_execute($stmt)) {
             $order_id = mysqli_insert_id($conn);
@@ -32,11 +37,6 @@
             $order_items_added = false;
             foreach($quantities as $product_id => $quantity) {
                 if($quantity > 0) {
-
-                    //$sql = "INSERT INTO order_products (order_id, product_id, quantity) VALUES ($order_id, $product_id, $quantity)"; 
-                    //mysqli_query($conn, $sql);
-                    
-                    // but this good for sql injection
                     $insert_query = "INSERT INTO order_products (order_id, product_id, quantity) VALUES (?, ?, ?)";
                     $insert_stmt = mysqli_prepare($conn, $insert_query);
                     mysqli_stmt_bind_param($insert_stmt, "iii", $order_id, $product_id, $quantity);
@@ -49,7 +49,7 @@
                 echo "<div class='container'>
                     <div class='alert alert-success'>Order placed successfully!</div>
                 </div>";
-                // header("Location: orders.php");
+                header("Location: user_orders.php");
             } else {
                 mysqli_query($conn, "DELETE FROM orders WHERE id = $order_id");
                 echo "<div class='alert alert-warning'>Please select at least one product to order.</div>";
@@ -61,31 +61,28 @@
 ?>
 <div class="container mt-4">
     <h1 class="text-center mb-4">Place New Order</h1>
-
+  
     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST" id="orderForm">
         <div class="row">
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm sticky-top" style="top: 20px;">
                     <div class="card-body">
                         <h4 class="card-title mb-3">Order Summary</h4>
-                        <!--
-                            we will add here list of user if logged one is an admin
-                        -->
                         <div class="mb-3">
                             <label for="choosenUser" class="form-label">Select User</label>
                             <select name="choosenUser" id="choosenUser" class="form-select">
                                 <option value="">Choose User</option>
-                                <?php foreach ($rooms as $room): ?>
-                                    <option value="<?= $room ?>"><?= $room ?></option>
+                                <?php foreach ($list_of_users as $user): ?>
+                                    <option value="<?= $user ?>"><?= $user ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="room" class="form-label">Select Room</label>
-                            <select name="room" id="room" class="form-select">
+                            <label for="room_id" class="form-label">Select Room</label>
+                            <select name="room_id" id="room_id" class="form-select">
                                 <option value="">Choose Room</option>
                                 <?php foreach ($rooms as $room): ?>
-                                    <option value="<?= $room ?>"><?= $room ?></option>
+                                    <option value="<?= $room['id'] ?>"><?= htmlspecialchars($room['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -172,7 +169,7 @@
                 return false;
             }
             
-            if (!document.getElementById('room').value) {
+            if (!document.getElementById('room_id').value) {
                 e.preventDefault();
                 showErrorModal('<div class="alert alert-warning">Please select a room.</div>');
                 return false;
