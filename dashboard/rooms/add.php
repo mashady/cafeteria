@@ -9,9 +9,9 @@ if(isset($_POST["btn"])){
     $name = trim($_POST["name"]);
     
     if(empty($name)) {
-        $error = "Room name is required";
+        $error = "Please provide a valid room name (1-100 characters).";
     } elseif(strlen($name) > 100) {
-        $error = "Room name must be less than 100 characters";
+        $error = "Please provide a valid room name (1-100 characters).";
     } else {
         $check = "SELECT * FROM rooms WHERE name = ?";
         $stmt = mysqli_prepare($conn, $check);
@@ -40,10 +40,6 @@ if(isset($_POST["btn"])){
 <div class="container mt-4">
     <h1>New Room</h1>
     
-    <?php if(!empty($error)): ?>
-        <div class="alert alert-danger w-50"><?php echo $error; ?></div>
-    <?php endif; ?>
-    
     <form method="POST" class="w-50 needs-validation" novalidate>
         <div class="mb-3">
             <label for="roomName" class="form-label">Name</label>
@@ -55,7 +51,7 @@ if(isset($_POST["btn"])){
                    required
                    maxlength="100">
             <div class="invalid-feedback">
-                Please provide a valid room name (1-100 characters).
+                <?php echo $error ?: 'Please provide a valid room name (1-100 characters).'; ?>
             </div>
         </div>
         <button type="submit" name="btn" class="btn btn-primary">Submit</button>
@@ -71,6 +67,10 @@ if(isset($_POST["btn"])){
     Array.prototype.slice.call(forms)
         .forEach(function (form) {
             form.addEventListener('submit', function (event) {
+                form.querySelectorAll('.is-invalid').forEach(function(el) {
+                    el.classList.remove('is-invalid');
+                });
+                
                 if (!form.checkValidity()) {
                     event.preventDefault()
                     event.stopPropagation()
