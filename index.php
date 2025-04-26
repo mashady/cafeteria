@@ -27,7 +27,6 @@
         
         $user_id = $_SESSION['user_id'] ?? 1;
         
-        // Updated query to include room_id
         $query = "INSERT INTO orders (user_id, room_id, notes, total, status) VALUES (?, ?, ?, ?, 'processing')";
         $stmt = mysqli_prepare($conn, $query);
         mysqli_stmt_bind_param($stmt, "iisd", $user_id, $room_id, $notes, $total);
