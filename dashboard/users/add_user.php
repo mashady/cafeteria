@@ -148,7 +148,7 @@ if (isset($_POST["rbtn"])) {
   <div class="col-md-8">
     <div class="card card-custom">
       <div class="card-header text-center">
-        <h4 class="mb-0">👤 Add New User</h4>
+        <h4 class="mb-0">Add New User</h4>
       </div>
       <div class="card-body">
         <form method="post" enctype="multipart/form-data">
@@ -198,7 +198,7 @@ if (isset($_POST["rbtn"])) {
   </div>
 
           <div class="d-grid mt-4">
-            <button type="submit" name="rbtn" class="btn btn-dark">➕ Add User</button>
+            <button type="submit" name="rbtn" class="btn btn-dark">Add User</button>
           </div>
         </form>
       </div>

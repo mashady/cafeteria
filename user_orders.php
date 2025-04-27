@@ -8,6 +8,16 @@ if (!isset($_SESSION['user_id'])) {
     include './includes/footer.php';
     exit;
 }*/
+if (isset($_POST['confirm_cancel'])) {
+    $order_id = $_POST['order_id'];
+    $update_sql = "UPDATE orders SET status = 'cancelled' WHERE id = ?";
+    $stmt = mysqli_prepare($conn, $update_sql);
+    mysqli_stmt_bind_param($stmt, "i", $order_id);
+    mysqli_stmt_execute($stmt);
+    
+    header("Location: ".$_SERVER['PHP_SELF'].($selected_user_id ? "?user_id=".$selected_user_id : ""));
+    exit();
+}
 
 $user_id = $_SESSION['user_id'] ?? 1;
 $orders = [];
@@ -45,7 +55,14 @@ while ($row = mysqli_fetch_assoc($result)) {
                 <div class="card-header">
                     <strong>Order #<?= $order_id ?></strong> | Status: <?= ucfirst($order['status']) ?> |
                     Date: <?= date("Y-m-d H:i", strtotime($order['created_at'])) ?>
+                    <?php if ($order['status'] == 'processing'): ?>
+                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                data-bs-toggle="modal" data-bs-target="#cancelModal<?= $order_id ?>">
+                            Cancel Order
+                        </button>
+                    <?php endif; ?>
                 </div>
+                
                 <div class="card-body">
                     <p><strong>Notes:</strong> <?= $order['notes'] ?: 'None' ?></p>
                     <ul class="list-group">
@@ -58,7 +75,30 @@ while ($row = mysqli_fetch_assoc($result)) {
                     </ul>
                     <p class="mt-2"><strong>Total:</strong> <?= $order['total'] ?> EGP</p>
                 </div>
+                
             </div>
+            <?php if ($order['status'] == 'processing'): ?>
+            <div class="modal fade" id="cancelModal<?= $order_id ?>" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="cancelModalLabel">Confirm Order Cancellation</h5>
+                            <button type="button" class="btn-close" data-bs-close="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to cancel Order #<?= $order_id ?>?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <form method="POST" style="display: inline;">
+                                <input type="hidden" name="order_id" value="<?= $order_id ?>">
+                                <button type="submit" name="confirm_cancel" class="btn btn-danger">Confirm Cancellation</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
         <?php endforeach; ?>
     <?php else: ?>
         <div class="alert alert-info">You haven’t placed any orders yet.</div>
