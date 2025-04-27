@@ -97,17 +97,49 @@ $baseQS = http_build_query($params);
                     <tr>
                         <th>Name</th><th>Room</th><th>Image</th><th>Ext</th><th>Role</th><th colspan="2">Action</th>
                     </tr>
-                    <?php while($users = mysqli_fetch_assoc($result)): ?>
-                        <tr>
-                            <td><?=htmlspecialchars($users['name'])?></td>
-                            <td><?=htmlspecialchars($users['room'])?></td>
-                            <td><img src='../../assets/images/users/<?=htmlspecialchars($users['profile_pic'])?>' width='50' height='50' style='object-fit:cover;border-radius:8px'></td>
-                            <td><?=htmlspecialchars($users['ext'])?></td>
-                            <td><?=htmlspecialchars($users['role'])?></td>
-                            <td><a href='edit.php?userid=<?=$users['id']?>' class='btn btn-outline-warning border-0'><i class='fas fa-edit fs-5'></i></a></td>
-                            <td><a href='delete.php?userid=<?=$users['id']?>' class='btn btn-outline-danger border-0'><i class='fas fa-trash fs-5'></i></a></td>
-                        </tr>
-                    <?php endwhile; ?>
+                    <?php while($users = mysqli_fetch_assoc($result)) {
+                            echo "<tr >"; 
+                                echo "<td> $users[name] </td>";
+                                echo "<td> $users[room] </td>";
+                               
+      // Check if profile_pic is not empty
+      if (!empty($users['profile_pic'])) {
+        $imagePath = '../../assets/images/users/' . $users['profile_pic']; // Construct the file path
+        echo "<td><img src='$imagePath' alt='" . htmlspecialchars($users['name']) . "' width='50' height='50' style='object-fit: cover; border-radius: 8px;'></td>";
+    } else {
+        echo "<td>No image available</td>";
+    }
+                    
+                                echo "<td> $users[ext] </td>";
+                                $id = htmlspecialchars($users["id"]);
+                                echo "<td>   <a href='edit_user.php?userid=$id'class='btn btn-outline-warning border border-0' ><i class='fas fa-edit fs-5'></i> </a>   </td>"; 
+                                echo "<td>
+                                <button class='btn btn-outline-danger border-0' data-bs-toggle='modal' data-bs-target='#deleteModal$id'>
+                                    <i class='fas fa-trash fs-5'></i>
+                                </button>
+                            </td>";
+                            echo "</tr>"; 
+                            echo "
+<div class='modal fade' id='deleteModal$id' tabindex='-1' aria-labelledby='deleteModalLabel$id' aria-hidden='true'>
+  <div class='modal-dialog'>
+    <div class='modal-content'>
+      <div class='modal-header'>
+        <h5 class='modal-title' id='deleteModalLabel$id'>Confirm Deletion</h5>
+        <button type='button' class='btn-close' data-bs-dismiss='modal' aria-label='Close'></button>
+      </div>
+      <div class='modal-body'>
+        Are you sure you want to delete <strong>$users[name]</strong>?
+      </div>
+      <div class='modal-footer'>
+        <button type='button' class='btn btn-secondary' data-bs-dismiss='modal'>Cancel</button>
+        <a href='delete_user.php?userid=$id' class='btn btn-danger'>Delete</a>
+      </div>
+    </div>
+  </div>
+</div>";
+
+                        }?>
+                   
                 </table>
             </div>
 
@@ -138,9 +170,6 @@ $baseQS = http_build_query($params);
                     </li>
                 </ul>
             </nav>
-        </div>
-    </div>
-</div>
-
+                    
 <?php include '../../includes/footer.php'; ?>
 ```

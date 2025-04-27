@@ -14,24 +14,19 @@ if (isset($_POST["login"])){
       $email = trim($_POST["email"]);
       $password = $_POST["password"];
   
-      // Validate email
       if (empty($email)) {
           $emailErr = "Email is required";
       } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
           $emailErr = "Please enter a valid email address";
       }
-  
-      // Validate password
       if (empty($password)) {
           $passwordErr = "Password is required";
       }
   
-      // If no errors, check user credentials
       if (empty($emailErr) && empty($passwordErr)) {
-          // Hash the password
+         
           $hashedPassword = md5($password);
   
-          // Check if the user exists in the database
           $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$hashedPassword'";
           $result = mysqli_query($conn, $sql);
           if (mysqli_num_rows($result) > 0) {
@@ -39,11 +34,7 @@ if (isset($_POST["login"])){
             $user = mysqli_fetch_assoc($result); 
             $_SESSION['user'] = $user;
         
-            if ($user['role'] === 'admin') {
-                header("Location: ./dashboard/");
-            } else {
-                header("Location: user_home.php");
-            }
+            header("Location: user_home.php");
             exit();
         }}
   }

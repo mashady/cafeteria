@@ -13,8 +13,34 @@ $emailValue = '';
 $passwordValue = '';
 $confirmPassword = '';
 $roleValue = '';
+$uploadDir = '../../assets/images/users/';
+$imageNewName = '';
 
 if (isset($_POST["rbtn"])) {
+  if (isset($_FILES['profile-image']) && $_FILES['profile-image']['error'] == 0) {
+    $fileName = $_FILES["profile-image"]["name"];
+    $fileTmpName = $_FILES["profile-image"]["tmp_name"];
+    $fileSize = $_FILES["profile-image"]["size"];
+    $fileType = $_FILES["profile-image"]["type"];
+
+    if ($fileSize > 2 * 1024 * 1024) {
+        $imageErr = "File size exceeds the allowed limit (2MB).";
+    } else {
+        $fileArray = explode(".", $fileName);
+        $lastElementExt = strtolower(end($fileArray));
+        $allowedExt = ["jpg", "jpeg", "png", "gif"];
+        if (!in_array($lastElementExt, $allowedExt)) {
+            $imageErr = "Please upload a valid image file (jpg, jpeg, png, gif).";
+        } else {
+            $imageNewName = uniqid('', true) . '.' . $lastElementExt;
+            $imageUploadPath = $uploadDir . $imageNewName;
+            if (!move_uploaded_file($fileTmpName, $imageUploadPath)) {
+                $imageErr = "Error uploading image. Please try again.";
+            }
+        }
+    }
+}
+
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $name = trim($_POST["Name"]);
         $email = trim($_POST["email"]);
@@ -60,23 +86,26 @@ if (isset($_POST["rbtn"])) {
         if (empty($role) || !in_array($role, ['admin', 'user'])) {
             $roleErr = "Please select a valid role";
         }
+        
+     
+    
 
-        if (empty($nameErr) && empty($emailErr) && empty($passwordErr) && empty($confirmErr) && empty($roleErr)) {
-            $hashedPassword = md5($password); // 🔐 Consider using password_hash for better security
+      if (empty($nameErr) && empty($emailErr) && empty($passwordErr) && empty($confirmErr) && empty($roleErr)) {
+        $hashedPassword = md5($password);
+        $sql = "INSERT INTO users (name, email, password, profile_pic) 
+        VALUES ('$nameValue', '$emailValue', '$hashedPassword', '$imageNewName')";
+        $result = mysqli_query($conn, $sql);
 
-            $sql = "INSERT INTO users (name, email, password, role) VALUES ('$nameValue', '$emailValue', '$hashedPassword', '$role')";
-            $result = mysqli_query($conn, $sql);
-
-            if ($result) {
-                echo '<div class="alert alert-success text-center mt-3">User added successfully! Redirecting...</div>';
-                header("Location: index.php");
-                exit();
-            } else {
-                echo '<div class="alert alert-danger text-center mt-3">Something went wrong. Please try again.</div>';
-            }
-
+        if ($result) {
+            $registrationSuccess = true;
+            echo '<div class="alert alert-success text-center mt-3">user add successful! Redirecting to login...</div>';
+            echo '<meta http-equiv="refresh" content="3;url=index.php">';
+            exit(); 
+        } else {
+            echo '<div class="alert alert-danger text-center mt-3">Something went wrong. Please try again.</div>';
         }
-    }
+}
+} 
 }
 ?>
 
@@ -122,7 +151,7 @@ if (isset($_POST["rbtn"])) {
         <h4 class="mb-0">👤 Add New User</h4>
       </div>
       <div class="card-body">
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
 
           <div class="mb-3">
             <label class="form-label">Name:</label>
@@ -163,6 +192,10 @@ if (isset($_POST["rbtn"])) {
             </select>
             <div class="invalid-feedback"><?php echo $roleErr; ?></div>
           </div>
+          <div class="mb-3">
+    <input type="file" class="form-control" aria-label="file example" name="profile-image" required>
+    <div class="invalid-feedback">Example invalid form picture</div>
+  </div>
 
           <div class="d-grid mt-4">
             <button type="submit" name="rbtn" class="btn btn-dark">➕ Add User</button>

@@ -10,6 +10,10 @@ $passwordErr = '';
 $passwordValue = ''; 
 $confirmPassword = '';
 $confirmErr = '';
+$uploadDir = 'assets/images/users/';
+$imageNewName = '';
+// $profile_image = '';
+// $uploadDir = 'assets/images/users';
 if (isset($_POST["rbtn"])){
  
 
@@ -21,6 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $confirmPassword=$_POST["confirm_password"];
     $nameValue = $_POST["Name"];
     $emailValue = $_POST["email"];
+    // $profile_image= $_POST["profile-image"];
     if (empty($name)) {
         $nameErr = "name is required";
     } elseif (!preg_match("/^[a-zA-Z ]+$/", $name)) {
@@ -48,17 +53,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } elseif ($password !== $confirmPassword) {
         $confirmErr = "Passwords do not match";
     }
-    if (empty($nameErr) && empty($emailErr) && empty($passwordErr) && empty($confirmErr)) {
+    if (isset($_FILES['profile-image']) && $_FILES['profile-image']['error'] == 0) {
+      $fileName = $_FILES["profile-image"]["name"];
+      $fileTmpName = $_FILES["profile-image"]["tmp_name"];
+      $fileSize = $_FILES["profile-image"]["size"];
+      $fileType = $_FILES["profile-image"]["type"];
+  
+      if ($fileSize > 2 * 1024 * 1024) {
+          $imageErr = "File size exceeds the allowed limit (2MB).";
+      } else {
+          $fileArray = explode(".", $fileName);
+          $lastElementExt = strtolower(end($fileArray));
+          $allowedExt = ["jpg", "jpeg", "png", "gif"];
+          if (!in_array($lastElementExt, $allowedExt)) {
+              $imageErr = "Please upload a valid image file (jpg, jpeg, png, gif).";
+          } else {
+              $imageNewName = uniqid('', true) . '.' . $lastElementExt;
+              $imageUploadPath = $uploadDir . $imageNewName;
+              if (!move_uploaded_file($fileTmpName, $imageUploadPath)) {
+                  $imageErr = "Error uploading image. Please try again.";
+              }
+          }
+      }
+  }
+  
+
+
+    if (empty($nameErr) && empty($emailErr) && empty($passwordErr) && empty($confirmErr)&& empty($imageErr)) {
         $hashedPassword = md5($password);
 
-        $sql = "INSERT INTO users (name,email,password) VALUES ('$nameValue', '$emailValue', '$hashedPassword')";
+        $sql = "INSERT INTO users (name,email,password, profile_pic) VALUES ('$nameValue', '$emailValue', '$hashedPassword', '$imageNewName')";
         $result = mysqli_query($conn, $sql);
 
         if ($result) {
             $registrationSuccess = true;
             echo '<div class="alert alert-success text-center mt-3">Registration successful! Redirecting to login...</div>';
             echo '<meta http-equiv="refresh" content="3;url=login.php">';
-            exit(); // Stop script to prevent form from reloading
+            exit(); 
         } else {
             echo '<div class="alert alert-danger text-center mt-3">Something went wrong. Please try again.</div>';
         }
@@ -90,7 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="card-body">
        
          
-            <form method="post" >
+            <form method="post" enctype="multipart/form-data">
 
             <div class="mb-3">
   <label class="form-label">Name:</label>
@@ -148,6 +179,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
   <?php endif; ?>
 </div>
+<div class="mb-3">
+    <input type="file" class="form-control" aria-label="file example" name="profile-image" required>
+    <div class="invalid-feedback">Example invalid form picture</div>
+  </div>
 
               <button type="submit" name="rbtn" class="btn w-100 btn-dark" > Register </button>
             </form>
@@ -158,6 +193,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
               >
                 Already have an account?
                 <span class="ms-2 btn btn-dark px-3">login</span>
+
               </a>
             </div>
           </div>
