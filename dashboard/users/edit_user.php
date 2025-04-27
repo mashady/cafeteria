@@ -115,9 +115,7 @@ if (isset($_POST["btn"])) {
 <div class="container admin-panel">
   <div class="col-md-8">
     <div class="card card-custom">
-      <div class="card-header text-center">
-        <h4 class="mb-0">update User</h4>
-      </div>
+    
       <div class="card-body">
         <form method="post">
 
@@ -131,7 +129,7 @@ if (isset($_POST["btn"])) {
 
           <div class="mb-3">
             <label class="form-label">Email:</label>
-            <input type="email" name="email"
+            <input type="text" name="email"
               class="form-control <?php echo (!empty($emailErr)) ? 'is-invalid' : ''; ?>"
               value="<?php echo $row["email"] ?>" />
             <div class="invalid-feedback"><?php echo $emailErr; ?></div>

@@ -147,9 +147,7 @@ if (isset($_POST["rbtn"])) {
 <div class="container admin-panel">
   <div class="col-md-8">
     <div class="card card-custom">
-      <div class="card-header text-center">
-        <h4 class="mb-0">Add New User</h4>
-      </div>
+    
       <div class="card-body">
         <form method="post" enctype="multipart/form-data">
 
@@ -163,7 +161,7 @@ if (isset($_POST["rbtn"])) {
 
           <div class="mb-3">
             <label class="form-label">Email:</label>
-            <input type="email" name="email"
+            <input type="text" name="email"
               class="form-control <?php echo (!empty($emailErr)) ? 'is-invalid' : ''; ?>"
               value="<?php echo htmlspecialchars($emailValue); ?>" />
             <div class="invalid-feedback"><?php echo $emailErr; ?></div>
@@ -193,7 +191,7 @@ if (isset($_POST["rbtn"])) {
             <div class="invalid-feedback"><?php echo $roleErr; ?></div>
           </div>
           <div class="mb-3">
-    <input type="file" class="form-control" aria-label="file example" name="profile-image" required>
+    <input type="file" class="form-control" aria-label="file example" name="profile-image">
     <div class="invalid-feedback">Example invalid form picture</div>
   </div>
 
