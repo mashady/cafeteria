@@ -7,49 +7,44 @@ if (isset($_POST["login"])){
 
   $emailErr = '';
   $passwordErr = '';
-  $emailValue = '';
-  $passwordValue = '';
+  $emailValue = $_POST['email'] ?? ''; 
+  $passwordValue = $_POST['password'] ?? '';
   
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $email = trim($_POST["email"]);
       $password = $_POST["password"];
   
-      // Validate email
       if (empty($email)) {
           $emailErr = "Email is required";
       } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
           $emailErr = "Please enter a valid email address";
       }
-  
-      // Validate password
       if (empty($password)) {
           $passwordErr = "Password is required";
       }
   
-      // If no errors, check user credentials
       if (empty($emailErr) && empty($passwordErr)) {
-          // Hash the password
-          $hashedPassword = md5($password);
-  
-          // Check if the user exists in the database
-          $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$hashedPassword'";
-          $result = mysqli_query($conn, $sql);
-          if (mysqli_num_rows($result) > 0) {
-            session_start();
-            $user = mysqli_fetch_assoc($result); // 🛠️ هنا نجيب بيانات المستخدم كمصفوفة
-        
-            $_SESSION['user'] = $user; // تقدر تخزن المصفوفة كاملة بالجلسة
-        
-            if ($user['role'] === 'admin') {
-                header("Location: ./dashboard/");
-            } else {
+        $sql = "SELECT * FROM users WHERE email = '$email'";
+        $result = mysqli_query($conn, $sql);
+    
+        if (mysqli_num_rows($result) > 0) {
+            $user = mysqli_fetch_assoc($result);
+            if ($user['password'] === md5($password)) {
+                session_start();
+                $_SESSION['user'] = $user;
                 header("Location: user_home.php");
+                exit();
+            } else {
+                $passwordErr = "Incorrect password";
             }
-            exit();
-        }}
+        } else {
+            $emailErr = "invalid email";
+        }
+    }
+}
   }
 
-}
+
 
 
 
