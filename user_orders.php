@@ -19,7 +19,7 @@ if (isset($_POST['confirm_cancel'])) {
     exit();
 }
 
-$user_id = $_SESSION['user_id'] ?? 1;
+$user_id = $_SESSION['user_id'] ?? 17;
 $orders = [];
 
 $query = "

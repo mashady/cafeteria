@@ -2,13 +2,11 @@
 include '../../includes/header.php';
 include '../../db/connect.php';
 
-// ——— Read filters from GET
 $nameFilter   = trim($_GET['name']      ?? '');
 $minPrice     = trim($_GET['min_price'] ?? '');
 $maxPrice     = trim($_GET['max_price'] ?? '');
 $catFilter    = trim($_GET['category']  ?? '');
 
-// ——— Build WHERE conditions dynamically
 $where = [];
 if ($nameFilter !== '') {
     $where[] = "name LIKE '%" . mysqli_real_escape_string($conn, $nameFilter) . "%'";
@@ -24,27 +22,22 @@ if ($catFilter !== '') {
 }
 $whereSQL = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
-// 1) pagination setup
 $limit  = 5;
 $page   = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $offset = ($page - 1) * $limit;
 
-// 2) total count with filters
 $countSql = "SELECT COUNT(*) AS total FROM products $whereSQL";
 $countRes = mysqli_query($conn, $countSql);
 $totalRow = mysqli_fetch_assoc($countRes);
 $totalProducts = $totalRow['total'];
 $totalPages    = ceil($totalProducts / $limit);
 
-// 3) fetch filtered & paginated products
 $sql    = "SELECT * FROM products $whereSQL ORDER BY id ASC LIMIT $limit OFFSET $offset";
 $result = mysqli_query($conn, $sql);
 
-// 4) fetch categories for filter dropdown
 $catSql = "SELECT id, name FROM categories";
 $catRes = mysqli_query($conn, $catSql);
 
-// preserve other GET params for pagination links
 $params = $_GET;
 unset($params['page']);
 $baseQS = http_build_query($params);
@@ -57,9 +50,8 @@ $baseQS = http_build_query($params);
 </style>
 
 <div class="container w-75 mt-5">
-  <h1 class="text-center text-muted mb-5">Admin products dashboard</h1>
+  <h1 class="mb-5">Admin products dashboard</h1>
   
-  <!-- Filter Form -->
   <form method="get" class="row g-2 mb-4">
     <div class="col-sm">
       <input type="text" name="name" class="form-control" placeholder="Search by name" value="<?=htmlspecialchars($nameFilter)?>">
@@ -87,9 +79,9 @@ $baseQS = http_build_query($params);
 
   <div class="card shadow-sm mb-4">
     <div class="card-body">
-        <div class="card-header d-flex justify-content-between align-items-center">
+        <div class="card-header d-flex justify-content-between align-items-center" style="background-color: white; color: #000;">
             <h5 class="m-2 fs-5">All Products</h5>
-            <a href="add_product.php" class="btn btn-primary"><i class="fas fa-plus"></i> Add New Product</a>
+            <a href="add_product.php" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add New Product</a>
         </div>
       <div class="table-responsive">
         <table class="table table-striped table-hover mt-3 text-center align-middle">

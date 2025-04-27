@@ -1,4 +1,7 @@
 <?php
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
     include './includes/header.php';
     include './db/connect.php';
 
@@ -7,76 +10,85 @@
     while ($row = mysqli_fetch_assoc($result)) {
         $products[] = $row;
     }
+
     $list_of_users = [];
-    $result = mysqli_query($conn, "SELECT * FROM users");
+    $result = mysqli_query($conn, "SELECT id, name FROM users");
     while ($row = mysqli_fetch_assoc($result)) {
-        $list_of_users[] = $row['name'];
+        $list_of_users[] = $row;
     }
-    
+
     $rooms = [];
     $result = mysqli_query($conn, "SELECT id, name FROM rooms");
     while ($row = mysqli_fetch_assoc($result)) {
         $rooms[] = $row;
     }
 
-    if(isset($_POST["btn"])){
+    if (isset($_POST["btn"])) {
+        $user_id = $_POST["user_id"];
         $room_id = $_POST["room_id"]; 
         $notes = $_POST["notes"];
         $quantities = $_POST["qty"] ?? [];
         $total = $_POST["total"] ?? 0;
-        
-        $user_id = $_SESSION['user_id'] ?? 1;
-        
-        $query = "INSERT INTO orders (user_id, room_id, notes, total, status) VALUES (?, ?, ?, ?, 'processing')";
-        $stmt = mysqli_prepare($conn, $query);
-        mysqli_stmt_bind_param($stmt, "iisd", $user_id, $room_id, $notes, $total);
-        
-        if(mysqli_stmt_execute($stmt)) {
-            $order_id = mysqli_insert_id($conn);
-            
-            $order_items_added = false;
-            foreach($quantities as $product_id => $quantity) {
-                if($quantity > 0) {
-                    $insert_query = "INSERT INTO order_products (order_id, product_id, quantity) VALUES (?, ?, ?)";
-                    $insert_stmt = mysqli_prepare($conn, $insert_query);
-                    mysqli_stmt_bind_param($insert_stmt, "iii", $order_id, $product_id, $quantity);
-                    mysqli_stmt_execute($insert_stmt);
-                    $order_items_added = true;
-                }
-            }
-            
-            if($order_items_added) {
-                echo "<div class='container'>
-                    <div class='alert alert-success'>Order placed successfully!</div>
-                </div>";
-                header("Location: user_orders.php");
-            } else {
-                mysqli_query($conn, "DELETE FROM orders WHERE id = $order_id");
-                echo "<div class='alert alert-warning'>Please select at least one product to order.</div>";
-            }
+
+        if (empty($user_id) || empty($room_id)) {
+            $error_message = "Please select both a user and a room.";
         } else {
-            echo "<div class='alert alert-danger'>Error placing order: " . mysqli_error($conn) . "</div>";
+            $query = "INSERT INTO orders (user_id, room_id, notes, total, status) VALUES (?, ?, ?, ?, 'processing')";
+            $stmt = mysqli_prepare($conn, $query);
+            mysqli_stmt_bind_param($stmt, "iisd", $user_id, $room_id, $notes, $total);
+
+            if (mysqli_stmt_execute($stmt)) {
+                $order_id = mysqli_insert_id($conn);
+
+                $order_items_added = false;
+                foreach ($quantities as $product_id => $quantity) {
+                    if ($quantity > 0) {
+                        $insert_query = "INSERT INTO order_products (order_id, product_id, quantity) VALUES (?, ?, ?)";
+                        $insert_stmt = mysqli_prepare($conn, $insert_query);
+                        mysqli_stmt_bind_param($insert_stmt, "iii", $order_id, $product_id, $quantity);
+                        mysqli_stmt_execute($insert_stmt);
+                        $order_items_added = true;
+                    }
+                }
+
+                if ($order_items_added) {
+                    header("Location: user_orders.php");
+                    exit();
+                } else {
+                    mysqli_query($conn, "DELETE FROM orders WHERE id = $order_id");
+                    $error_message = "Please select at least one product.";
+                }
+            } else {
+                $error_message = "Error placing order: " . mysqli_error($conn);
+            }
         }
     }
 ?>
+
 <div class="container mt-4">
     <h1 class="text-center mb-4">Place New Order</h1>
-  
+
     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST" id="orderForm">
         <div class="row">
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm sticky-top" style="top: 20px;">
                     <div class="card-body">
                         <h4 class="card-title mb-3">Order Summary</h4>
+
+                        <?php if (isset($error_message)): ?>
+                            <div class="alert alert-danger"><?= htmlspecialchars($error_message) ?></div>
+                        <?php endif; ?>
+
                         <div class="mb-3">
-                            <label for="choosenUser" class="form-label">Select User</label>
-                            <select name="choosenUser" id="choosenUser" class="form-select">
+                            <label for="user_id" class="form-label">Select User</label>
+                            <select name="user_id" id="user_id" class="form-select">
                                 <option value="">Choose User</option>
                                 <?php foreach ($list_of_users as $user): ?>
-                                    <option value="<?= $user ?>"><?= $user ?></option>
+                                    <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
+
                         <div class="mb-3">
                             <label for="room_id" class="form-label">Select Room</label>
                             <select name="room_id" id="room_id" class="form-select">
@@ -125,57 +137,12 @@
     </form>
 </div>
 
-<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="errorModalLabel">Order Validation</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body" id="errorModalBody">
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
     const prices = {
         <?php foreach ($products as $p): ?>
         <?= $p['id'] ?>: <?= $p['price'] ?>,
         <?php endforeach; ?>
     };
-
-    function showErrorModal(message) {
-        document.getElementById('errorModalBody').innerHTML = message;
-        const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-        errorModal.show();
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('orderForm').addEventListener('submit', function(e) {
-            let hasProducts = false;
-            document.querySelectorAll('.product-qty').forEach(function(input) {
-                if (parseInt(input.value) > 0) {
-                    hasProducts = true;
-                }
-            });
-            
-            if (!hasProducts) {
-                e.preventDefault();
-                showErrorModal('<div class="alert alert-warning">Please select at least one product to order.</div>');
-                return false;
-            }
-            
-            if (!document.getElementById('room_id').value) {
-                e.preventDefault();
-                showErrorModal('<div class="alert alert-warning">Please select a room.</div>');
-                return false;
-            }
-        });
-    });
 
     function updateQty(id, change) {
         const input = document.getElementById(`qty-${id}`);

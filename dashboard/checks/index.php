@@ -2,39 +2,32 @@
 include '../../includes/header.php';
 include '../../db/connect.php';
 
-// Pagination setup
 $limit = 5;
 $page  = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $offset = ($page - 1) * $limit;
 
-// Filters
 $where = [];
 
-// Search by user name
 if (!empty($_GET['name'])) {
   $name = mysqli_real_escape_string($conn, $_GET['name']);
   $where[] = "u.name LIKE '%$name%'";
 }
 
-// Search by from date
 if (!empty($_GET['from'])) {
   $from = mysqli_real_escape_string($conn, $_GET['from']);
   $where[] = "o.created_at >= '$from 00:00:00'";
 }
 
-// Search by to date
 if (!empty($_GET['to'])) {
   $to = mysqli_real_escape_string($conn, $_GET['to']);
   $where[] = "o.created_at <= '$to 23:59:59'";
 }
 
-// WHERE
 $whereSql = '';
 if (!empty($where)) {
   $whereSql = "WHERE " . implode(' AND ', $where);
 }
 
-// Count users for pagination
 $countRes = mysqli_query($conn, "
   SELECT COUNT(DISTINCT u.id) AS total
   FROM users u
@@ -70,7 +63,7 @@ $res = mysqli_query($conn, $sql);
 </style>
 
 <div class="container w-75 mt-5">
-  <h1 class="text-center text-muted mb-4">Users Total Orders</h1>
+  <h1 class="mb-4">Users Total Orders</h1>
 
   <!-- Filters Form -->
   <form method="GET" class="row g-3 mb-4">
