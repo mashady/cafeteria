@@ -36,9 +36,8 @@ if (isset($_POST["login"])){
           $result = mysqli_query($conn, $sql);
           if (mysqli_num_rows($result) > 0) {
             session_start();
-            $user = mysqli_fetch_assoc($result); // 🛠️ هنا نجيب بيانات المستخدم كمصفوفة
-        
-            $_SESSION['user'] = $user; // تقدر تخزن المصفوفة كاملة بالجلسة
+            $user = mysqli_fetch_assoc($result); 
+            $_SESSION['user'] = $user;
         
             if ($user['role'] === 'admin') {
                 header("Location: ./dashboard/");
