@@ -1,14 +1,12 @@
 <?php
-    $id = $_GET["product_id"];  // Get the product ID from the URL
+    $id = $_GET["product_id"];  
 
     include '../../includes/header.php';
     include '../../db/connect.php';
 
-    // get the product details
     $sql = "SELECT * FROM products WHERE id = $id";
     $result = mysqli_query($conn, $sql);
 
-    // Check if the product exists
     if (mysqli_num_rows($result) > 0) {
         $product = mysqli_fetch_assoc($result);
     } else {
@@ -16,12 +14,10 @@
         exit;
     }
 
-    // get the categories
     $sql1 = "SELECT * FROM categories";
     $result1 = mysqli_query($conn, $sql1);
 
 
-// Validation functions
 function validateName($name) {
     return preg_match('/^[A-Z][A-Za-z0-9\-\s]{1,15}$/', $name);
 }
@@ -32,7 +28,7 @@ function validateImage($file) {
 }
 
 $errors = [];
-$image_name = ''; // Default image name
+$image_name = ''; 
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -40,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $price = trim($_POST['price'] ?? '');
     $category = $_POST['category'] ?? '';
 
-    // Validate inputs
     if (!validateName($name)) {
         $errors['name'] = "Product name must start with an uppercase letter and contain only letters, numbers, dashed, and spaces. It should be between 2 to 16 characters long.";
     }
@@ -53,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['category'] = "Category is required.";
     }
 
-    // Validate image if uploaded
     if (isset($_FILES['image']) && $_FILES['image']['size'] > 0) {
         if (!validateImage($_FILES['image'])) {
             $errors['image'] = "Only JPEG, PNG, GIF images allowed and max 2MB.";
@@ -72,7 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     
 
-// If no errors, update product in database
 if (empty($errors)) {
         if (empty($image_name)) {
             $image_name = $product['image'];
@@ -84,7 +77,6 @@ if (empty($errors)) {
         $category = mysqli_real_escape_string($conn, $category);
         $image_name = mysqli_real_escape_string($conn, $image_name);
 
-        // Update product in database
         $sql = "UPDATE products SET 
                     name = '$name',
                     price = '$price',
@@ -120,7 +112,7 @@ if (empty($errors)) {
     
     <script type="text/javascript">
         setTimeout(function() {
-            window.location.href = "index.php";  // Redirect to the products page after 3 seconds
+            window.location.href = "index.php";  
         }, 3000);  
     </script>
 <?php endif; ?>
