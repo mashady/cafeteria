@@ -34,8 +34,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (empty($email)) {
         $emailErr = "Email is required";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $emailErr = "Please enter a valid email address";
-    } else {
+      $emailErr = "Please enter a valid email address";
+  } else {
 
         $sql_check_email = "SELECT * FROM users WHERE email = '$email'";
         $result_check = mysqli_query($conn, $sql_check_email);
