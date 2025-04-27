@@ -192,7 +192,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 class="text-dark text-decoration-none"
               >
                 Already have an account?
-                <span class="ms-2 btn btn-dark px-3">login</span>
+                login
 
               </a>
             </div>

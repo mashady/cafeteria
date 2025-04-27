@@ -69,7 +69,7 @@ if (isset($_POST["login"])){
     
       <div class="row justify-content-center">
         <div class="col-md-6">
-          <div class="card shadow-lg">
+          <div class="card">
 
             <div class="card-body">
             
