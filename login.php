@@ -7,8 +7,8 @@ if (isset($_POST["login"])){
 
   $emailErr = '';
   $passwordErr = '';
-  $emailValue = '';
-  $passwordValue = '';
+  $emailValue = $_POST['email'] ?? ''; 
+  $passwordValue = $_POST['password'] ?? '';
   
   if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $email = trim($_POST["email"]);
@@ -24,22 +24,27 @@ if (isset($_POST["login"])){
       }
   
       if (empty($emailErr) && empty($passwordErr)) {
-         
-          $hashedPassword = md5($password);
-  
-          $sql = "SELECT * FROM users WHERE email = '$email' AND password = '$hashedPassword'";
-          $result = mysqli_query($conn, $sql);
-          if (mysqli_num_rows($result) > 0) {
-            session_start();
-            $user = mysqli_fetch_assoc($result); 
-            $_SESSION['user'] = $user;
-        
-            header("Location: user_home.php");
-            exit();
-        }}
+        $sql = "SELECT * FROM users WHERE email = '$email'";
+        $result = mysqli_query($conn, $sql);
+    
+        if (mysqli_num_rows($result) > 0) {
+            $user = mysqli_fetch_assoc($result);
+            if ($user['password'] === md5($password)) {
+                session_start();
+                $_SESSION['user'] = $user;
+                header("Location: user_home.php");
+                exit();
+            } else {
+                $passwordErr = "Incorrect password";
+            }
+        } else {
+            $emailErr = "invalid email";
+        }
+    }
+}
   }
 
-}
+
 
 
 
