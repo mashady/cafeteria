@@ -1,92 +1,210 @@
 <?php
-    include '../../includes/header.php';
-    include '../../db/connect.php';
+include '../../includes/header.php';
+include '../../db/connect.php';
 
-    
-    $where = [];
-    if (!empty($_GET['from_date'])) {
-        $from = mysqli_real_escape_string($conn, $_GET['from_date']);
-        $where[] = "order_date >= '$from'";
-    }
-    if (!empty($_GET['to_date'])) {
-        $to = mysqli_real_escape_string($conn, $_GET['to_date']);
-        $where[] = "order_date <= '$to'";
-    }
-    if (!empty($_GET['user_id'])) {
-        $uid = (int)$_GET['user_id'];
-        $where[] = "user_id = $uid";
-    }
-    $whereSQL = $where ? 'WHERE '.implode(' AND ', $where) : '';
+// Pagination setup
+$limit = 5;
+$page  = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+$offset = ($page - 1) * $limit;
 
-    
-    $sql = "
-      SELECT c.id, c.order_date, c.total, c.user_id, u.name 
-      FROM checks c
-      JOIN users u ON u.id = c.user_id
-      $whereSQL
-      ORDER BY c.order_date DESC
-    ";
-    $res = mysqli_query($conn, $sql);
+// Filters
+$where = [];
+
+// Search by user name
+if (!empty($_GET['name'])) {
+  $name = mysqli_real_escape_string($conn, $_GET['name']);
+  $where[] = "u.name LIKE '%$name%'";
+}
+
+// Search by from date
+if (!empty($_GET['from'])) {
+  $from = mysqli_real_escape_string($conn, $_GET['from']);
+  $where[] = "o.created_at >= '$from 00:00:00'";
+}
+
+// Search by to date
+if (!empty($_GET['to'])) {
+  $to = mysqli_real_escape_string($conn, $_GET['to']);
+  $where[] = "o.created_at <= '$to 23:59:59'";
+}
+
+// WHERE
+$whereSql = '';
+if (!empty($where)) {
+  $whereSql = "WHERE " . implode(' AND ', $where);
+}
+
+// Count users for pagination
+$countRes = mysqli_query($conn, "
+  SELECT COUNT(DISTINCT u.id) AS total
+  FROM users u
+  LEFT JOIN orders o ON u.id = o.user_id
+  $whereSql
+");
+$countRow = mysqli_fetch_assoc($countRes);
+$totalUsers = $countRow['total'];
+$totalPages = ceil($totalUsers / $limit);
+
+// Fetch users
+$sql = "
+  SELECT 
+    u.id AS user_id,
+    u.name,
+    IFNULL(SUM(o.total), 0) AS total_orders
+  FROM users u
+  LEFT JOIN orders o ON u.id = o.user_id
+  $whereSql
+  GROUP BY u.id, u.name
+  ORDER BY total_orders DESC
+  LIMIT $limit OFFSET $offset
+";
+$res = mysqli_query($conn, $sql);
 ?>
 
-<div class="container w-75 mt-5">
-  <h1 class="text-center text-muted">Admin checks dashboard</h1>
+<style>
+.pagination .page-link { border: none; padding: 0.5rem 0.75rem; transition: background 0.2s, color 0.2s; }
+.pagination .page-item.active .page-link { background-color: #0d6efd; color: #fff; border-radius: 50%; }
+.pagination .page-link:hover { background-color: #0d6efd; color: #fff; border-radius: 50%; }
+.table thead th { background-color: #f8f9fa; color: #495057; }
+.table tbody tr:hover { background-color: #f1f1f1; }
+</style>
 
-  <!-- Filter Form -->
-  <form method="get" class="row g-3 mb-4">
-    <div class="col-md-3">
-      <label>From:</label>
-      <input type="date" name="from_date" class="form-control"
-             value="<?=htmlspecialchars($_GET['from_date'] ?? '')?>">
-    </div>
-    <div class="col-md-3">
-      <label>To:</label>
-      <input type="date" name="to_date" class="form-control"
-             value="<?=htmlspecialchars($_GET['to_date'] ?? '')?>">
-    </div>
+<div class="container w-75 mt-5">
+  <h1 class="text-center text-muted mb-4">Users Total Orders</h1>
+
+  <!-- Filters Form -->
+  <form method="GET" class="row g-3 mb-4">
     <div class="col-md-4">
-      <label>User:</label>
-      <select name="user_id" class="form-select">
-        <option value="">All users</option>
-        <?php
-          $usrRs = mysqli_query($conn, "SELECT id,name FROM users");
-          while($u = mysqli_fetch_assoc($usrRs)) {
-            $sel = (($_GET['user_id'] ?? '') == $u['id']) ? 'selected' : '';
-            echo "<option value=\"{$u['id']}\" $sel>"
-               . htmlspecialchars($u['name'])
-               . "</option>";
-          }
-        ?>
-      </select>
+      <input type="text" name="name" class="form-control" placeholder="Search by user name" value="<?= htmlspecialchars($_GET['name'] ?? '') ?>">
     </div>
-    <div class="col-md-2 align-self-end">
-      <button class="btn btn-primary w-100">Filter</button>
+    <div class="col-md-3">
+      <input type="date" name="from" class="form-control" value="<?= htmlspecialchars($_GET['from'] ?? '') ?>">
+    </div>
+    <div class="col-md-3">
+      <input type="date" name="to" class="form-control" value="<?= htmlspecialchars($_GET['to'] ?? '') ?>">
+    </div>
+    <div class="col-md-2 d-flex">
+      <button type="submit" class="btn btn-primary w-100">Filter</button>
+      <?php if (!empty($_GET)): ?>
+        <a href="?" class="btn btn-outline-secondary ms-2">Reset</a>
+      <?php endif; ?>
     </div>
   </form>
 
+  <div class="card shadow-sm bg-white mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <h5 class="m-2 fs-5">All Users Total Orders</h5>
+      <a href="../orders/index.php" class="btn btn-primary"><i class="fas fa-arrow"></i> Show all orders</a>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <?php if (mysqli_num_rows($res) > 0): ?>
+          <table class="table table-bordered table-hover mt-3 text-center align-middle bg-white">
+            <thead>
+              <tr>
+                <th>User Name</th>
+                <th>Total Orders</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php while($user = mysqli_fetch_assoc($res)): ?>
+                <tr>
+                  <td>
+                    <a href="../orders/?user_id=<?= $user['user_id'] ?>" class="text-decoration-none"><?= htmlspecialchars($user['name']) ?></a>
+                  </td>
+                  <td><?= number_format($user['total_orders'], 2) ?> EGP</td>
+                  <td>
+                    <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#orders<?= $user['user_id'] ?>" aria-expanded="false" aria-controls="orders<?= $user['user_id'] ?>">
+                      Show Orders
+                    </button>
+                  </td>
+                </tr>
 
-  <table class="table">
-    <thead>
-      <tr><th>Date</th><th>User</th><th>Total</th></tr>
-    </thead>
-    <tbody>
-      <?php while($row = mysqli_fetch_assoc($res)): ?>
-        <tr>
-          <td><?=htmlspecialchars($row['order_date'])?></td>
-          <td>
-            <a href="../orders/index.php?
-                     user_id=<?= $row['user_id'] ?>
-                     &from_date=<?= urlencode($_GET['from_date'] ?? '') ?>
-                     &to_date=<?= urlencode($_GET['to_date'] ?? '') ?>">
-              <?=htmlspecialchars($row['name'])?>
-            </a>
-          </td>
-          <td><?=htmlspecialchars($row['total'])?> EGP</td>
-        </tr>
-      <?php endwhile; ?>
-    </tbody>
-  </table>
+                <tr class="collapse" id="orders<?= $user['user_id'] ?>">
+                  <td colspan="3">
+                    <div class="position-relative">
+                      <button type="button" class="btn-close position-absolute top-0 end-0 m-2" aria-label="Close" onclick="bootstrap.Collapse.getInstance(document.getElementById('orders<?= $user['user_id'] ?>')).hide()"></button>
+                      <table class="table table-striped table-hover mt-4">
+                        <thead>
+                          <tr>
+                            <th>Order Date</th>
+                            <th>Order Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <?php
+                            $userId = (int)$user['user_id'];
+                            $orderRes = mysqli_query($conn, "
+                              SELECT created_at, total
+                              FROM orders
+                              WHERE user_id = $userId
+                              ORDER BY created_at DESC
+                            ");
+                            if (mysqli_num_rows($orderRes) > 0):
+                              while($order = mysqli_fetch_assoc($orderRes)):
+                          ?>
+                            <tr>
+                              <td><?= htmlspecialchars($order['created_at']) ?></td>
+                              <td><?= number_format($order['total'], 2) ?> EGP</td>
+                            </tr>
+                          <?php endwhile; else: ?>
+                            <tr><td colspan="2" class="text-muted">No orders found.</td></tr>
+                          <?php endif; ?>
+                        </tbody>
+                      </table>
+                    </div>
+                  </td>
+                </tr>
 
+              <?php endwhile; ?>
+            </tbody>
+          </table>
+
+          <!-- Pagination -->
+          <?php if ($totalPages > 1): ?>
+            <nav aria-label="Page navigation example">
+              <ul class="pagination justify-content-center">
+                <?php
+                  $queryString = $_GET;
+                  $queryString['page'] = $page - 1;
+                  $prevLink = '?' . http_build_query($queryString);
+
+                  $queryString['page'] = $page + 1;
+                  $nextLink = '?' . http_build_query($queryString);
+                ?>
+                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                  <a class="page-link rounded-pill ms-2" href="<?= $prevLink ?>"><i class="fas fa-chevron-left"></i></a>
+                </li>
+
+                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
+                  <?php
+                    $queryString['page'] = $i;
+                    $pageLink = '?' . http_build_query($queryString);
+                  ?>
+                  <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
+                    <a class="page-link" href="<?= $pageLink ?>"><?= $i ?></a>
+                  </li>
+                <?php endfor; ?>
+
+                <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                  <a class="page-link rounded-pill ms-2" href="<?= $nextLink ?>"><i class="fas fa-chevron-right"></i></a>
+                </li>
+              </ul>
+            </nav>
+          <?php endif; ?>
+
+        <?php else: ?>
+          <div class="alert alert-info text-center">
+            No users found.
+          </div>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Bootstrap JS Bundle (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <?php include '../../includes/footer.php'; ?>
