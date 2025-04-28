@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($result->num_rows > 0) {
         $token = bin2hex(random_bytes(50)); // Generate a random token
         
-        $expiry = date("Y-m-d H:i:s", strtotime('+1 hour'));
+        $expiry = date("Y-m-d H:i:s", strtotime('+2 hour'));
 
         // Save token
         $conn->query("UPDATE users SET reset_token='$token', reset_token_expire='$expiry' WHERE email='$email'");
