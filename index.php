@@ -163,7 +163,7 @@ if (isset($_SESSION['user'])) {
 <script>
     const prices = {
         <?php foreach ($products as $p): ?>
-        <?= $p['id'] ?>: <?= $p['price'] ?>,
+        <?= $p['id'] ?>: <?= $p['price'] ?>
         <?php endforeach; ?>
     };
 
