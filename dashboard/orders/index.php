@@ -5,6 +5,7 @@ include '../../includes/admin_auth.php';
 
 if (!isset($_SESSION['user'])) {
     header('Location: login.php');
+    exit();
 }
 
 if (isset($_POST['confirm_cancel'])) {
@@ -13,8 +14,21 @@ if (isset($_POST['confirm_cancel'])) {
     $stmt = mysqli_prepare($conn, $update_sql);
     mysqli_stmt_bind_param($stmt, "i", $order_id);
     mysqli_stmt_execute($stmt);
-    
-    header("Location: ".$_SERVER['PHP_SELF'].($selected_user_id ? "?user_id=".$selected_user_id : ""));
+
+    header("Location: " . $_SERVER['PHP_SELF'] . (isset($_GET['user_id']) ? "?user_id=" . $_GET['user_id'] : ""));
+    exit();
+}
+
+if (isset($_POST['update_status'])) {
+    $order_id = $_POST['order_id'];
+    $new_status = $_POST['status'];
+
+    $update_sql = "UPDATE orders SET status = ? WHERE id = ?";
+    $stmt = mysqli_prepare($conn, $update_sql);
+    mysqli_stmt_bind_param($stmt, "si", $new_status, $order_id);
+    mysqli_stmt_execute($stmt);
+
+    header("Location: " . $_SERVER['PHP_SELF'] . (isset($_GET['user_id']) ? "?user_id=" . $_GET['user_id'] : ""));
     exit();
 }
 
@@ -24,6 +38,7 @@ while ($row = mysqli_fetch_assoc($user_result)) {
     $users[] = $row;
 }
 
+// Fetch orders
 $orders = [];
 $selected_user_id = $_GET['user_id'] ?? null;
 
@@ -86,14 +101,28 @@ while ($row = mysqli_fetch_assoc($result)) {
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <div>
-                        <strong>Order #<?= $order_id ?></strong> | 
-                        Status: <?= ucfirst($order['status']) ?> |
-                        Date: <?= date("Y-m-d H:i", strtotime($order['created_at'])) ?>
+                        <strong>Order #<?= $order_id ?></strong> |
+                        
+                        <form method="POST" style="display: inline-block;">
+                            <input type="hidden" name="order_id" value="<?= $order_id ?>">
+                            <select name="status" onchange="this.form.submit()" class="form-select form-select-sm d-inline-block w-auto">
+                                <option value="processing" <?= $order['status'] === 'processing' ? 'selected' : '' ?>>Processing</option>
+                                <option value="out for delivery" <?= $order['status'] === 'out for delivery' ? 'selected' : '' ?>>Out for Delivery</option>
+                                <option value="done" <?= $order['status'] === 'done' ? 'selected' : '' ?>>Done</option>
+                                <?php if ($order['status'] === 'processing' || $order['status'] === 'cancelled'): ?>
+            <option value="cancelled" <?= $order['status'] === 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
+        <?php endif; ?>
+                            </select>
+                            <input type="hidden" name="update_status" value="1">
+                        </form>
+
+                        | Date: <?= date("Y-m-d H:i", strtotime($order['created_at'])) ?>
+
                         <?php if (!$selected_user_id): ?>
                             | <span class="text-muted">User: <?= htmlspecialchars($order['user_name']) ?></span>
                         <?php endif; ?>
                     </div>
-                    
+
                     <?php if ($order['status'] == 'processing'): ?>
                         <button type="button" class="btn btn-sm btn-outline-danger" 
                                 data-bs-toggle="modal" data-bs-target="#cancelModal<?= $order_id ?>">
@@ -101,6 +130,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                         </button>
                     <?php endif; ?>
                 </div>
+
                 <div class="card-body">
                     <p><strong>Notes:</strong> <?= $order['notes'] ?: 'None' ?></p>
                     <ul class="list-group">
@@ -121,7 +151,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="cancelModalLabel">Confirm Order Cancellation</h5>
-                            <button type="button" class="btn-close" data-bs-close="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             Are you sure you want to cancel Order #<?= $order_id ?>?
@@ -137,6 +167,7 @@ while ($row = mysqli_fetch_assoc($result)) {
                 </div>
             </div>
             <?php endif; ?>
+
         <?php endforeach; ?>
     <?php else: ?>
         <div class="alert alert-warning">No orders found.</div>
