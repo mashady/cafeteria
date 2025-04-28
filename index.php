@@ -66,6 +66,14 @@
 ?>
 
 <div class="container mt-4">
+<?php
+if (isset($_SESSION['user'])) {
+    echo "Hello, " . $_SESSION['user']['role'];
+} else {
+    echo "Hello, Guest";
+}
+?>
+
     <h1 class="text-center mb-4">Place New Order</h1>
 
     <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST" id="orderForm">
@@ -79,15 +87,20 @@
                             <div class="alert alert-danger"><?= htmlspecialchars($error_message) ?></div>
                         <?php endif; ?>
 
-                        <div class="mb-3">
-                            <label for="user_id" class="form-label">Select User</label>
-                            <select name="user_id" id="user_id" class="form-select">
-                                <option value="">Choose User</option>
-                                <?php foreach ($list_of_users as $user): ?>
-                                    <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+
+
+                        <?php if ($_SESSION['user']['role'] === 'admin'): ?>
+                            <div class="mb-3">
+                                <label for="user_id" class="form-label">Select User</label>
+                                <select name="user_id" id="user_id" class="form-select">
+                                    <option value="">Choose User</option>
+                                    <?php foreach ($list_of_users as $user): ?>
+                                        <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['name']) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        <?php endif ?>
+
 
                         <div class="mb-3">
                             <label for="room_id" class="form-label">Select Room</label>

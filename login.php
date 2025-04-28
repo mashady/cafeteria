@@ -32,7 +32,7 @@ if (isset($_POST["login"])){
             if ($user['password'] === md5($password)) {
                 session_start();
                 $_SESSION['user'] = $user;
-                header("Location: user_home.php");
+                header("Location: index.php");
                 exit();
             } else {
                 $passwordErr = "Incorrect password";
