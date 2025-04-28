@@ -36,16 +36,19 @@ if (session_status() === PHP_SESSION_NONE) {
 
             <?php if ($_SESSION['user']['role'] === 'admin'): ?>
                 <li class="nav-item">
-                  <a class="nav-link" href="/cafeteria/dashboard/orders">Manage Orders</a>
+                  <a class="nav-link" href="/cafeteria/dashboard/orders">Orders</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="/cafeteria/dashboard/products">Manage Products</a>
+                  <a class="nav-link" href="/cafeteria/dashboard/products">Products</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="/cafeteria/dashboard/categories">Manage Categories</a>
+                  <a class="nav-link" href="/cafeteria/dashboard/categories">Categories</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="/cafeteria/dashboard/users">Manage Users</a>
+                  <a class="nav-link" href="/cafeteria/dashboard/rooms">Rooms</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/cafeteria/dashboard/users">Users</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="/cafeteria/dashboard/checks">Checks</a>

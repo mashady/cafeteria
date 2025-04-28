@@ -6,7 +6,6 @@ include '../../includes/admin_auth.php';
 $sql = "SELECT * FROM categories";
 $result = mysqli_query($conn, $sql);
 
-// Validation functions
 function validateName($name) {
     return preg_match('/^[A-Z][A-Za-z0-9\-\s]{1,15}$/', $name);
 }
@@ -17,7 +16,7 @@ function validateImage($file) {
 }
 
 $errors = [];
-$image_name = ''; // Default image name
+$image_name = ''; 
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -25,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $price = trim($_POST['price'] ?? '');
     $category = $_POST['category'] ?? '';
 
-    // Validate inputs
     if (!validateName($name)) {
         $errors['name'] = "Product name must start with an uppercase letter and contain only letters, numbers, dashed, and spaces. It should be between 2 to 16 characters long.";
     }
@@ -38,7 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['category'] = "Category is required.";
     }
 
-    // Validate image if uploaded
     if (isset($_FILES['image']) && $_FILES['image']['size'] > 0) {
         if (!validateImage($_FILES['image'])) {
             $errors['image'] = "Only JPEG, PNG, GIF images allowed and max 2MB.";
@@ -55,20 +52,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['image'] = "Product image is required.";
     }
 
-    // If no errors, insert data into database
     if (empty($errors)) {
-        // Escape data for security
         $name = mysqli_real_escape_string($conn, $name);
         $price = mysqli_real_escape_string($conn, $price);
         $category = mysqli_real_escape_string($conn, $category);
         $image_name = mysqli_real_escape_string($conn, $image_name);
 
-        // Insert into database
         $sql = "INSERT INTO products (name, price, category_id, image) 
                 VALUES ('$name', '$price', '$category', '$image_name')";
 
         if (mysqli_query($conn, $sql)) {
-            header("Location: add_product.php?success=1");  // Redirect to the same page with success message
+            header("Location: add_product.php?success=1");  
             exit;
         } else {
             echo "<div class='alert alert-danger'>Database Error: " . mysqli_error($conn) . "</div>";
@@ -80,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 
 <div class="container w-50 mt-5">
-    <h1 class="text-center text-muted">Create Product</h1>
+    <h1 class="">Create Product</h1>
 
     <?php if (!empty($errors)): ?>
         <div class="alert alert-danger">
@@ -95,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <script type="text/javascript">
         setTimeout(function() {
-            window.location.href = "index.php";  // Redirect to the products page after 3 seconds
+            window.location.href = "index.php";  
         }, 3000);  
     </script>
 <?php endif; ?>
@@ -147,9 +141,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
 
-        <div class="my-5 d-flex justify-content-evenly">
-            <button type="submit" class="btn btn-info px-5">Add</button>
-            <button type="reset" class="btn btn-warning px-5">Reset</button>
+        <div class="my-5 d-flex ">
+            <button type="submit" class="btn btn-primary px-5">Add</button>
         </div>
     </form>
 </div>
