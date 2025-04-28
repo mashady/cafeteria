@@ -86,7 +86,7 @@ $result = mysqli_query($conn, $sql);
                 <ul class="pagination justify-content-center">
                     <li class="page-item <?= $page <= 1 ? 'disabled' : '' ?>">
                         <a class="page-link" href="?page=<?= $page - 1 ?>" aria-label="Previous">
-                            <span aria-hidden="true">&laquo;</span>
+                           prev
                         </a>
                     </li>
                     
@@ -116,7 +116,7 @@ $result = mysqli_query($conn, $sql);
                     
                     <li class="page-item <?= $page >= $total_pages ? 'disabled' : '' ?>">
                         <a class="page-link" href="?page=<?= $page + 1 ?>" aria-label="Next">
-                            <span aria-hidden="true">&raquo;</span>
+                            next
                         </a>
                     </li>
                 </ul>

@@ -7,7 +7,7 @@ $limit = 5;
 $page  = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $offset = ($page - 1) * $limit;
 
-$where = [];
+$where = ["o.id IS NOT NULL"]; 
 
 if (!empty($_GET['name'])) {
   $name = mysqli_real_escape_string($conn, $_GET['name']);
@@ -32,21 +32,20 @@ if (!empty($where)) {
 $countRes = mysqli_query($conn, "
   SELECT COUNT(DISTINCT u.id) AS total
   FROM users u
-  LEFT JOIN orders o ON u.id = o.user_id
+  JOIN orders o ON u.id = o.user_id
   $whereSql
 ");
 $countRow = mysqli_fetch_assoc($countRes);
 $totalUsers = $countRow['total'];
 $totalPages = ceil($totalUsers / $limit);
 
-// Fetch users
 $sql = "
   SELECT 
     u.id AS user_id,
     u.name,
     IFNULL(SUM(o.total), 0) AS total_orders
   FROM users u
-  LEFT JOIN orders o ON u.id = o.user_id
+  JOIN orders o ON u.id = o.user_id
   $whereSql
   GROUP BY u.id, u.name
   ORDER BY total_orders DESC
@@ -57,8 +56,7 @@ $res = mysqli_query($conn, $sql);
 
 <style>
 .pagination .page-link { border: none; padding: 0.5rem 0.75rem; transition: background 0.2s, color 0.2s; }
-.pagination .page-item.active .page-link { background-color: #0d6efd; color: #fff; border-radius: 50%; }
-.pagination .page-link:hover { background-color: #0d6efd; color: #fff; border-radius: 50%; }
+.pagination .page-item.active .page-link { background-color: #0d6efd; color: #fff;  }
 .table thead th { background-color: #f8f9fa; color: #495057; }
 .table tbody tr:hover { background-color: #f1f1f1; }
 </style>
@@ -66,7 +64,6 @@ $res = mysqli_query($conn, $sql);
 <div class="container w-75 mt-5">
   <h1 class="mb-4">Users Total Orders</h1>
 
-  <!-- Filters Form -->
   <form method="GET" class="row g-3 mb-4">
     <div class="col-md-4">
       <input type="text" name="name" class="form-control" placeholder="Search by user name" value="<?= htmlspecialchars($_GET['name'] ?? '') ?>">
@@ -87,7 +84,7 @@ $res = mysqli_query($conn, $sql);
 
   <div class="card shadow-sm bg-white mb-4">
     <div class="card-header d-flex justify-content-between align-items-center">
-      <h5 class="m-2 fs-5">All Users Total Orders</h5>
+      <h5 class="m-2 fs-5">Users With Orders</h5>
       <a href="../orders/index.php" class="btn btn-primary"><i class="fas fa-arrow"></i> Show all orders</a>
     </div>
     <div class="card-body">
@@ -155,36 +152,64 @@ $res = mysqli_query($conn, $sql);
             </tbody>
           </table>
 
-          <!-- Pagination -->
           <?php if ($totalPages > 1): ?>
-            <nav aria-label="Page navigation example">
-              <ul class="pagination justify-content-center">
-                <?php
-                  $queryString = $_GET;
-                  $queryString['page'] = $page - 1;
-                  $prevLink = '?' . http_build_query($queryString);
-
-                  $queryString['page'] = $page + 1;
-                  $nextLink = '?' . http_build_query($queryString);
-                ?>
-                <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
-                  <a class="page-link rounded-pill ms-2" href="<?= $prevLink ?>"><i class="fas fa-chevron-left"></i></a>
-                </li>
-
-                <?php for ($i = 1; $i <= $totalPages; $i++): ?>
-                  <?php
-                    $queryString['page'] = $i;
-                    $pageLink = '?' . http_build_query($queryString);
-                  ?>
-                  <li class="page-item <?= ($page == $i) ? 'active' : '' ?>">
-                    <a class="page-link" href="<?= $pageLink ?>"><?= $i ?></a>
-                  </li>
-                <?php endfor; ?>
-
-                <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
-                  <a class="page-link rounded-pill ms-2" href="<?= $nextLink ?>"><i class="fas fa-chevron-right"></i></a>
-                </li>
-              </ul>
+            <nav aria-label="Order pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item <?= ($page <= 1) ? 'disabled' : '' ?>">
+                        <?php
+                        $prev_page_params = $_GET;
+                        $prev_page_params['page'] = $page - 1;
+                        if ($prev_page_params['page'] < 1) unset($prev_page_params['page']);
+                        ?>
+                        <a class="page-link" href="?<?= http_build_query($prev_page_params) ?>" aria-label="Previous">
+                            <span aria-hidden="true">Prev</span>
+                        </a>
+                    </li>
+                    
+                    <?php
+                    $range = 2; 
+                    $start_page = max(1, $page - $range);
+                    $end_page = min($totalPages, $page + $range);
+                    
+                    if ($start_page > 1) {
+                        $first_page_params = $_GET;
+                        $first_page_params['page'] = 1;
+                        echo '<li class="page-item"><a class="page-link" href="?' . http_build_query($first_page_params) . '">1</a></li>';
+                        if ($start_page > 2) {
+                            echo '<li class="page-item disabled"><a class="page-link">...</a></li>';
+                        }
+                    }
+                    
+                    for ($i = $start_page; $i <= $end_page; $i++) {
+                        $page_params = $_GET;
+                        $page_params['page'] = $i;
+                        if ($i == 1) unset($page_params['page']); 
+                        
+                        echo '<li class="page-item ' . (($i == $page) ? 'active' : '') . '">
+                                <a class="page-link" href="?' . http_build_query($page_params) . '">' . $i . '</a>
+                              </li>';
+                    }
+                    
+                    if ($end_page < $totalPages) {
+                        if ($end_page < $totalPages - 1) {
+                            echo '<li class="page-item disabled"><a class="page-link">...</a></li>';
+                        }
+                        $last_page_params = $_GET;
+                        $last_page_params['page'] = $totalPages;
+                        echo '<li class="page-item"><a class="page-link" href="?' . http_build_query($last_page_params) . '">' . $totalPages . '</a></li>';
+                    }
+                    ?>
+                    
+                    <li class="page-item <?= ($page >= $totalPages) ? 'disabled' : '' ?>">
+                        <?php
+                        $next_page_params = $_GET;
+                        $next_page_params['page'] = $page + 1;
+                        ?>
+                        <a class="page-link" href="?<?= http_build_query($next_page_params) ?>" aria-label="Next">
+                            <span aria-hidden="true">Next</span>
+                        </a>
+                    </li>
+                </ul>
             </nav>
           <?php endif; ?>
 
@@ -198,7 +223,6 @@ $res = mysqli_query($conn, $sql);
   </div>
 </div>
 
-<!-- Bootstrap JS Bundle (includes Popper) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 <?php include '../../includes/footer.php'; ?>
