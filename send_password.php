@@ -12,23 +12,20 @@ include './db/connect.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $conn->real_escape_string($_POST['email']);
 
-    // Check if email exists
     $result = $conn->query("SELECT * FROM users WHERE email = '$email'");
     if ($result->num_rows > 0) {
-        $token = bin2hex(random_bytes(50)); // Generate a random token
+        $token = bin2hex(random_bytes(50)); 
         $expiry = date("Y-m-d H:i:s", strtotime('+1 hour'));
 
-        // Save token
         $conn->query("UPDATE users SET reset_token='$token', reset_token_expire='$expiry' WHERE email='$email'");
 
-        // Send reset email
         $mail = new PHPMailer(true);
         try {
             $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com'; // Your SMTP server
+            $mail->Host = 'smtp.gmail.com'; 
             $mail->SMTPAuth = true;
-            $mail->Username = 'am201121999@gmail.com'; // SMTP username
-            $mail->Password = 'xtkm trxm ypix ztzg'; // SMTP password
+            $mail->Username = 'am201121999@gmail.com'; 
+            $mail->Password = 'xtkm trxm ypix ztzg'; 
             $mail->SMTPSecure = 'tls';
             $mail->Port = 587;
 
