@@ -1,7 +1,9 @@
 <?php
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
+ini_set('display_errors',1);
+ini_set('display_startup_errors',1);
+error_reporting(E_ALL);
 
 require 'vendor/autoload.php'; // If you used Composer
 
@@ -16,6 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $conn->query("SELECT * FROM users WHERE email = '$email'");
     if ($result->num_rows > 0) {
         $token = bin2hex(random_bytes(50)); // Generate a random token
+        
         $expiry = date("Y-m-d H:i:s", strtotime('+1 hour'));
 
         // Save token

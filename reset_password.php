@@ -1,7 +1,9 @@
 <?php
 include './db/connect.php';
 include './includes/header.php';
-
+ini_set('display_errors',1);
+ini_set('display_startup_errors',1);
+error_reporting(E_ALL);
 if (isset($_GET['token'])) {
     $token = $conn->real_escape_string($_GET['token']);
 
