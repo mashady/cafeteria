@@ -8,6 +8,7 @@ $emailErr = '';
 $passwordErr = '';
 $confirmErr = '';
 $roleErr = '';
+$imageErr="";
 
 $nameValue = '';
 $emailValue = '';
@@ -18,30 +19,7 @@ $uploadDir = '../../assets/images/users/';
 $imageNewName = '';
 
 if (isset($_POST["rbtn"])) {
-  if (isset($_FILES['profile-image']) && $_FILES['profile-image']['error'] == 0) {
-    $fileName = $_FILES["profile-image"]["name"];
-    $fileTmpName = $_FILES["profile-image"]["tmp_name"];
-    $fileSize = $_FILES["profile-image"]["size"];
-    $fileType = $_FILES["profile-image"]["type"];
-
-    if ($fileSize > 2 * 1024 * 1024) {
-        $imageErr = "File size exceeds the allowed limit (2MB).";
-    } else {
-        $fileArray = explode(".", $fileName);
-        $lastElementExt = strtolower(end($fileArray));
-        $allowedExt = ["jpg", "jpeg", "png", "gif"];
-        if (!in_array($lastElementExt, $allowedExt)) {
-            $imageErr = "Please upload a valid image file (jpg, jpeg, png, gif).";
-        } else {
-            $imageNewName = uniqid('', true) . '.' . $lastElementExt;
-            $imageUploadPath = $uploadDir . $imageNewName;
-            if (!move_uploaded_file($fileTmpName, $imageUploadPath)) {
-                $imageErr = "Error uploading image. Please try again.";
-            }
-        }
-    }
-}
-
+ 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $name = trim($_POST["Name"]);
         $email = trim($_POST["email"]);
@@ -52,6 +30,31 @@ if (isset($_POST["rbtn"])) {
         $nameValue = $name;
         $emailValue = $email;
         $roleValue = $role;
+
+        if (isset($_FILES['profile-image']) && $_FILES['profile-image']['error'] == 0) {
+          $fileName = $_FILES["profile-image"]["name"];
+          $fileTmpName = $_FILES["profile-image"]["tmp_name"];
+          $fileSize = $_FILES["profile-image"]["size"];
+  
+          $fileArray = explode(".", $fileName);
+          $lastElementExt = strtolower(end($fileArray));
+          $allowedExt = ["jpg", "jpeg", "png", "gif"];
+  
+          if ($fileSize > 2 * 1024 * 1024) {
+              $imageErr = "File size exceeds the allowed limit (2MB).";
+          } elseif (!in_array($lastElementExt, $allowedExt) || !getimagesize($fileTmpName)) {
+              $imageErr = "Please upload a valid image file (jpg, jpeg, png, gif).";
+          } else {
+              $imageNewName = uniqid('', true) . '.' . $lastElementExt;
+              $imageUploadPath = $uploadDir . $imageNewName;
+              if (!move_uploaded_file($fileTmpName, $imageUploadPath)) {
+                  $imageErr = "Error uploading image. Please try again.";
+              }
+          }
+      } else {
+          $imageErr = "Please upload a profile image.";
+      }
+      
 
         // Validations
         if (empty($name)) {
@@ -88,13 +91,14 @@ if (isset($_POST["rbtn"])) {
             $roleErr = "Please select a valid role";
         }
         
+        
      
     
 
-      if (empty($nameErr) && empty($emailErr) && empty($passwordErr) && empty($confirmErr) && empty($roleErr)) {
+      if (empty($nameErr) && empty($emailErr) && empty($passwordErr) && empty($confirmErr) && empty($roleErr) && empty($imageErr)) {
         $hashedPassword = md5($password);
-        $sql = "INSERT INTO users (name, email, password, profile_pic) 
-        VALUES ('$nameValue', '$emailValue', '$hashedPassword', '$imageNewName')";
+        $sql = "INSERT INTO users (name, email, password, profile_pic,role) 
+        VALUES ('$nameValue', '$emailValue', '$hashedPassword', '$imageNewName','$roleValue')";
         $result = mysqli_query($conn, $sql);
 
         if ($result) {
@@ -192,10 +196,11 @@ if (isset($_POST["rbtn"])) {
             <div class="invalid-feedback"><?php echo $roleErr; ?></div>
           </div>
           <div class="mb-3">
-    <input type="file" class="form-control" aria-label="file example" name="profile-image">
-    <div class="invalid-feedback">Example invalid form picture</div>
-  </div>
-
+            <label class="form-label">Profile Image:</label>
+            <input type="file" name="profile-image"
+                   class="form-control <?php echo (!empty($imageErr)) ? 'is-invalid' : ''; ?>">
+            <div class="invalid-feedback"><?php echo $imageErr; ?></div>
+          </div>
           <div class="d-grid mt-4">
             <button type="submit" name="rbtn" class="btn btn-dark">Add User</button>
           </div>
