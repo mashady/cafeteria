@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
     if (empty($password)) {
         $passwordErr = "Please enter a password";
-    } elseif (strlen($password) < 8){
+    } elseif (strlen($password) < 6){
         $passwordErr = "Password must be at least 6 characters long";
     } 
     if (empty($confirmPassword)) {
