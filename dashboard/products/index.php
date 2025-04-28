@@ -136,13 +136,13 @@ function toggleAvailability(productId, currentStatus) {
                        value="<?=htmlspecialchars($nameFilter)?>">
             </div>
             
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label for="min_price" class="form-label">Min Price</label>
                 <input type="number" name="min_price" class="form-control" placeholder="Min price" 
                        value="<?=htmlspecialchars($minPrice)?>">
             </div>
             
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label for="max_price" class="form-label">Max Price</label>
                 <input type="number" name="max_price" class="form-control" placeholder="Max price" 
                        value="<?=htmlspecialchars($maxPrice)?>">
@@ -162,14 +162,7 @@ function toggleAvailability(productId, currentStatus) {
                 </select>
             </div>
             
-            <div class="col-md-2">
-                <label for="availability" class="form-label">Availability</label>
-                <select name="availability" class="form-select">
-                    <option value="">All</option>
-                    <option value="1" <?= $availabilityFilter === 1 ? 'selected' : '' ?>>Available</option>
-                    <option value="0" <?= $availabilityFilter === 0 ? 'selected' : '' ?>>Out of Stock</option>
-                </select>
-            </div>
+          
             
             <div class="col-md-12 d-flex justify-content-end mt-3">
                 <button type="submit" class="btn btn-outline-primary btn-sm me-2">

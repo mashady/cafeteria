@@ -108,6 +108,38 @@ if (isset($_POST["btn"])) {
 }
 ?>
 
+<style>
+.product-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+.product-img-container {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+}
+.product-img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+.product-body {
+    padding: 1.25rem;
+}
+.quantity-controls {
+    max-width: 140px;
+    margin: 0 auto;
+}
+</style>
+
 <div class="container mt-4">
   <?php if (isset($_SESSION['user'])): ?>
     Hello, <?= htmlspecialchars($_SESSION['user']['name']) ?>
@@ -161,28 +193,32 @@ if (isset($_POST["btn"])) {
               <input type="hidden" id="total" name="total" value="0">
             </div>
 
-            <div class="mb-3">
-              <h5>Selected Items:</h5>
-              <div id="selected_items" class="list-group"></div>
-            </div>
-
             <button type="submit" class="btn btn-success w-100" name="btn">Confirm Order</button>
           </div>
         </div>
       </div>
 
       <div class="col-md-8">
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 ">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
           <?php foreach ($products as $p): ?>
             <div class="col">
-              <div class="card h-100 shadow-sm">
-                <div class="card-body text-center">
-                  <h5 class="card-title text-truncate"><?= htmlspecialchars($p['name']) ?></h5>
+              <div class="card h-100 shadow-sm product-card">
+                <div class="product-img-container">
+                <?php if (!empty($p['image'])): ?>
+                  <img src="assets/images/products/<?= htmlspecialchars($p['image']) ?>"
+                      class="product-img"
+                      alt="<?= htmlspecialchars($p['name']) ?>">
+                <?php else: ?>
+                  <div class="text-muted">No image available</div>
+                <?php endif ?>
+                </div>
+                <div class="product-body text-center">
+                  <h5 class="card-title"><?= htmlspecialchars($p['name']) ?></h5>
                   <p class="text-muted"><?= $p['price'] ?> EGP</p>
                   <?php if ($p['is_available'] == 0): ?>
                     <span class="badge bg-light text-dark">Not Available</span>
                   <?php else: ?>
-                    <div class="input-group mb-2">
+                    <div class="input-group quantity-controls">
                       <button class="btn btn-outline-secondary"
                               onclick="updateQty(<?= $p['id'] ?>,-1)">-</button>
                       <input type="number"
@@ -218,7 +254,6 @@ if (isset($_POST["btn"])) {
         </nav>
         <?php endif; ?>
       </div>
-
     </div>
   </form>
 </div>
