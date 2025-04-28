@@ -77,7 +77,7 @@ $res = mysqli_query($conn, $sql);
       <input type="date" name="to" class="form-control" value="<?= htmlspecialchars($_GET['to'] ?? '') ?>">
     </div>
     <div class="col-md-2 d-flex">
-      <button type="submit" class="btn btn-primary w-100">Filter</button>
+      <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
       <?php if (!empty($_GET)): ?>
         <a href="?" class="btn btn-outline-secondary ms-2">Reset</a>
       <?php endif; ?>
@@ -108,7 +108,7 @@ $res = mysqli_query($conn, $sql);
                   </td>
                   <td><?= number_format($user['total_orders'], 2) ?> EGP</td>
                   <td>
-                    <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#orders<?= $user['user_id'] ?>" aria-expanded="false" aria-controls="orders<?= $user['user_id'] ?>">
+                    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#orders<?= $user['user_id'] ?>" aria-expanded="false" aria-controls="orders<?= $user['user_id'] ?>">
                       Show Orders
                     </button>
                   </td>

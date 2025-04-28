@@ -54,7 +54,7 @@ $baseQS = http_build_query($params);
       </select>
     </div>
     <div class="col-md-2">
-      <button type="submit" class="btn btn-primary w-100">Filter</button>
+      <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
     </div>
   </form>
 
@@ -97,11 +97,11 @@ $baseQS = http_build_query($params);
                   </span>
                 </td>
                 <td>
-                  <a href="edit_user.php?userid=<?=$id?>" class="btn btn-sm btn-outline-warning me-2">
-                    <i class="fas fa-edit"></i> Edit
+                  <a href="edit_user.php?userid=<?=$id?>" class="btn btn-sm btn-outline-primary me-2">
+                    <i class="fas fa-edit"></i>
                   </a>
                   <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?=$id?>">
-                    <i class="fas fa-trash"></i> Delete
+                    <i class="fas fa-trash"></i>
                   </button>
                 </td>
               </tr>
@@ -128,7 +128,7 @@ $baseQS = http_build_query($params);
         </table>
       </div>
 
-      <?php if ($totalPages > 1): ?>
+        <?php if ($totalPages > 1): ?>
         <nav aria-label="Page navigation">
           <ul class="pagination justify-content-center">
             <li class="page-item <?= $page == 1 ? 'disabled' : '' ?>">

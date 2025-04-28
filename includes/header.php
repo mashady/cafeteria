@@ -1,3 +1,8 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -23,13 +28,42 @@
     <div class="collapse navbar-collapse" id="navbarMenu">
       <ul class="navbar-nav ms-auto">
 
-      <li class="nav-item"><a class="nav-link" href="/cafeteria/user_orders.php">User Orders</a></li>
-          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/orders">Manage Orders</a></li>
-          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/products">Manage Products</a></li>
-          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/categories">Manage Categories</a></li>
-          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/users">Manage Users</a></li>
-          <li class="nav-item"><a class="nav-link" href="/cafeteria/dashboard/checks">Checks</a></li>
-          <li class="nav-item"><a class="nav-link" href="/cafeteria/login.php">Login</a></li>
+        <?php if (isset($_SESSION['user'])): ?>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/cafeteria/user_orders.php">My Orders</a>
+            </li>
+
+            <?php if ($_SESSION['user']['role'] === 'admin'): ?>
+                <li class="nav-item">
+                  <a class="nav-link" href="/cafeteria/dashboard/orders">Manage Orders</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/cafeteria/dashboard/products">Manage Products</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/cafeteria/dashboard/categories">Manage Categories</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/cafeteria/dashboard/users">Manage Users</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/cafeteria/dashboard/checks">Checks</a>
+                </li>
+            <?php endif; ?>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/cafeteria/logout.php">Logout</a>
+            </li>
+
+        <?php else: ?>
+
+            <li class="nav-item">
+              <a class="nav-link" href="/cafeteria/login.php">Login</a>
+            </li>
+
+        <?php endif; ?>
+
       </ul>
     </div>
   </div>
