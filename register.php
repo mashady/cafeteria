@@ -87,8 +87,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         if ($result) {
             $registrationSuccess = true;
-            echo '<div class="alert alert-success text-center mt-3">Registration successful! Redirecting to login...</div>';
-            echo '<meta http-equiv="refresh" content="3;url=login.php">';
+            echo '<div class="alert alert-success text-center mt-3 w-50 mx-auto">Registration successful! Redirecting to login...</div>';
+            echo '<meta http-equiv="refresh" content="1;url=login.php">';
+
             exit(); 
         } else {
             echo '<div class="alert alert-danger text-center mt-3">Something went wrong. Please try again.</div>';

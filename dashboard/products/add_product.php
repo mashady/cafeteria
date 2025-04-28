@@ -1,6 +1,7 @@
 <?php
 include '../../includes/header.php';
 include '../../db/connect.php';
+include '../../includes/admin_auth.php';
 
 $sql = "SELECT * FROM categories";
 $result = mysqli_query($conn, $sql);

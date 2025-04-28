@@ -1,6 +1,8 @@
 <?php
 include '../../includes/header.php';
 include '../../db/connect.php';
+include '../../includes/admin_auth.php';
+
 $id = $_GET["userid"];
 $sql = "select * from users where id = $id";
 $result = mysqli_query($conn, $sql);

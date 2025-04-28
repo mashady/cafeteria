@@ -2,6 +2,9 @@
 session_start();
 include './includes/header.php';
 include './db/connect.php';
+
+include './includes/auth.php';
+
 /*
 if (!isset($_SESSION['user_id'])) {
     echo "<div class='container mt-5'><div class='alert alert-danger'>You must be logged in to view your orders.</div></div>";
@@ -19,7 +22,7 @@ if (isset($_POST['confirm_cancel'])) {
     exit();
 }
 
-$user_id = $_SESSION['user_id'] ?? 17;
+$user_id = $_SESSION['user']['id'];
 $orders = [];
 
 $query = "

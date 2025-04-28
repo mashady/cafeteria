@@ -1,12 +1,10 @@
 <?php
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
+
     include './includes/header.php';
     include './db/connect.php';
 
     $products = [];
-    $result = mysqli_query($conn, "SELECT * FROM products");
+    $result = mysqli_query($conn, "SELECT * FROM products"); // handle what appear here => product disable qty btn 
     while ($row = mysqli_fetch_assoc($result)) {
         $products[] = $row;
     }
@@ -24,7 +22,7 @@
     }
 
     if (isset($_POST["btn"])) {
-        $user_id = $_POST["user_id"];
+        $user_id = $_POST["user_id"] ?? $_SESSION['user']['id'];
         $room_id = $_POST["room_id"]; 
         $notes = $_POST["notes"];
         $quantities = $_POST["qty"] ?? [];
@@ -68,7 +66,7 @@
 <div class="container mt-4">
 <?php
 if (isset($_SESSION['user'])) {
-    echo "Hello, " . $_SESSION['user']['role'];
+    echo "Hello, " . $_SESSION['user']['name'];
 } else {
     echo "Hello, Guest";
 }
@@ -135,11 +133,23 @@ if (isset($_SESSION['user'])) {
                                 <div class="card-body text-center">
                                     <h5 class="card-title text-truncate"><?= $product['name'] ?></h5>
                                     <p class="text-muted"><?= $product['price'] ?> EGP</p>
+                                    
+
+                                    <div class="card-body text-center">
+
+                                <?php if ($product['is_available'] == 0): ?>
+                                    <span class="badge bg-light text-dark">Not Available</span>
+                                <?php else: ?>
                                     <div class="input-group mb-2">
                                         <button type="button" class="btn btn-outline-secondary" onclick="updateQty(<?= $product['id'] ?>, -1)">-</button>
                                         <input type="number" name="qty[<?= $product['id'] ?>]" id="qty-<?= $product['id'] ?>" class="form-control text-center product-qty" value="0" min="0" readonly>
                                         <button type="button" class="btn btn-outline-secondary" onclick="updateQty(<?= $product['id'] ?>, 1)">+</button>
                                     </div>
+                                <?php endif; ?>
+                            </div>
+
+
+                                    
                                 </div>
                             </div>
                         </div>
