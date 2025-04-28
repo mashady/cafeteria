@@ -2,6 +2,9 @@
 // include '../includes/.php';
 include './includes/header.php';
 include './db/connect.php';
+error_reporting(E_ALL); // Report all errors
+ini_set('display_errors', 1); // Display them on the page
+ini_set('display_startup_errors', 1); // Also startup errors
 $nameErr = '';
 $emailErr = '';
 $nameValue = '';
@@ -181,7 +184,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <?php endif; ?>
 </div>
 <div class="mb-3">
-    <input type="file" class="form-control" aria-label="file example" name="profile-image" required>
+    <input type="file" class="form-control" aria-label="file example" name="profile-image" >
     <div class="invalid-feedback">Example invalid form picture</div>
   </div>
 

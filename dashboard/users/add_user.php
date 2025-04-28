@@ -56,7 +56,6 @@ if (isset($_POST["rbtn"])) {
       }
       
 
-        // Validations
         if (empty($name)) {
             $nameErr = "Name is required";
         } elseif (!preg_match("/^[a-zA-Z ]+$/", $name)) {
@@ -103,8 +102,8 @@ if (isset($_POST["rbtn"])) {
 
         if ($result) {
             $registrationSuccess = true;
-            echo '<div class="alert alert-success text-center mt-3">user add successful! Redirecting to login...</div>';
-            echo '<meta http-equiv="refresh" content="3;url=index.php">';
+            echo '<div class="alert alert-success text-center mt-3 w-50 mx-auto">user add successful! Redirecting to login...</div>';
+            echo '<meta http-equiv="refresh" content="1;url=index.php">';
             exit(); 
         } else {
             echo '<div class="alert alert-danger text-center mt-3">Something went wrong. Please try again.</div>';
