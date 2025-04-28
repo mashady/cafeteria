@@ -105,7 +105,11 @@ if (isset($_POST["login"])){
     
                     <button type="submit" name="login" class="btn w-100 btn-dark">Login</button>
                 </form>
-
+                <div class="text-center mt-3">
+                <a href="./send_password.php" class="text-dark text-decoration-none">
+                 Forget password?
+                </a>
+              </div>
               <div class="text-center mt-3">
                 <a href="./register.php" class="text-dark text-decoration-none">
                   Don't have an account? Register
