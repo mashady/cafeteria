@@ -1,6 +1,7 @@
 <?php
 include '../../includes/header.php';
 include '../../db/connect.php';
+include '../../includes/admin_auth.php';
 
 $limit = 5;
 $page  = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;

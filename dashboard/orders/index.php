@@ -1,6 +1,11 @@
 <?php
 include '../../includes/header.php';
 include '../../db/connect.php';
+include '../../includes/admin_auth.php';
+
+if (!isset($_SESSION['user'])) {
+    header('Location: login.php');
+}
 
 if (isset($_POST['confirm_cancel'])) {
     $order_id = $_POST['order_id'];

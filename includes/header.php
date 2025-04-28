@@ -51,6 +51,7 @@ if (session_status() === PHP_SESSION_NONE) {
                   <a class="nav-link" href="/cafeteria/dashboard/checks">Checks</a>
                 </li>
             <?php endif; ?>
+            
 
             <li class="nav-item">
               <a class="nav-link" href="/cafeteria/logout.php">Logout</a>

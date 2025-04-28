@@ -2,6 +2,9 @@
 include '../../includes/header.php';
 include '../../db/connect.php';
 
+include '../../includes/admin_auth.php';
+
+
 $nameFilter = trim($_GET['name'] ?? '');
 $roleFilter = trim($_GET['role'] ?? '');
 

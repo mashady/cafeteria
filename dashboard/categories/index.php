@@ -1,7 +1,11 @@
 <?php
 include '../../includes/header.php';
 include '../../db/connect.php';
+include '../../includes/admin_auth.php';
 
+if (!isset($_SESSION['user'])) {
+    header('Location: login.php');
+}
 $limit = 10; 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $page = max($page, 1); 

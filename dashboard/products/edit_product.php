@@ -3,6 +3,7 @@
 
     include '../../includes/header.php';
     include '../../db/connect.php';
+    include '../../includes/admin_auth.php';
 
     $sql = "SELECT * FROM products WHERE id = $id";
     $result = mysqli_query($conn, $sql);

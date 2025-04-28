@@ -2,6 +2,8 @@
 include '../../includes/header.php';
 include '../../db/connect.php';
 
+include '../../includes/admin_auth.php';
+
 if (isset($_GET['toggle_availability'])) {
     $productId = (int)$_GET['product_id'];
     $currentStatus = (int)$_GET['current_status'];
