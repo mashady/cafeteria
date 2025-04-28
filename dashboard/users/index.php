@@ -70,7 +70,7 @@ $baseQS = http_build_query($params);
     </div>
     <div class="card-body">
       <div class="table-responsive">
-        <table class="table table-striped mt-3 align-middle">
+        <table class="table table-striped mt-3 align-middle table-bordered">
           <thead>
             <tr>
               <th>Name</th>
@@ -136,7 +136,7 @@ $baseQS = http_build_query($params);
           <ul class="pagination justify-content-center">
             <li class="page-item <?= $page == 1 ? 'disabled' : '' ?>">
               <a class="page-link" href="?<?=$baseQS?>&page=<?=$page-1?>">
-                <i class="fas fa-chevron-left"></i>
+                prev
               </a>
             </li>
             <?php for ($i = 1; $i <= $totalPages; $i++): ?>
@@ -146,7 +146,7 @@ $baseQS = http_build_query($params);
             <?php endfor; ?>
             <li class="page-item <?= $page == $totalPages ? 'disabled' : '' ?>">
               <a class="page-link" href="?<?=$baseQS?>&page=<?=$page+1?>">
-                <i class="fas fa-chevron-right"></i>
+                next
               </a>
             </li>
           </ul>

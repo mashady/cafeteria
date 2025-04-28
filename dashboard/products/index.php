@@ -1,7 +1,6 @@
 <?php
 include '../../includes/header.php';
 include '../../db/connect.php';
-
 include '../../includes/admin_auth.php';
 
 if (isset($_GET['toggle_availability'])) {
@@ -25,6 +24,7 @@ $nameFilter = trim($_GET['name'] ?? '');
 $minPrice = trim($_GET['min_price'] ?? '');
 $maxPrice = trim($_GET['max_price'] ?? '');
 $catFilter = trim($_GET['category'] ?? '');
+$availabilityFilter = isset($_GET['availability']) ? (int)$_GET['availability'] : null;
 
 $where = [];
 if ($nameFilter !== '') {
@@ -39,12 +39,17 @@ if ($maxPrice !== '') {
 if ($catFilter !== '') {
     $where[] = "p.category_id = " . (int)$catFilter;
 }
+if ($availabilityFilter !== null) {
+    $where[] = "p.is_available = " . (int)$availabilityFilter;
+}
 $whereSQL = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
+// Pagination setup
 $limit = 5;
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $offset = ($page - 1) * $limit;
 
+// Get total count
 $countSql = "SELECT COUNT(*) AS total FROM products p $whereSQL";
 $countRes = mysqli_query($conn, $countSql);
 $totalRow = mysqli_fetch_assoc($countRes);
@@ -59,6 +64,7 @@ $sql = "SELECT p.*, c.name as category_name
         LIMIT $limit OFFSET $offset";
 $result = mysqli_query($conn, $sql);
 
+// Get categories for dropdown
 $catSql = "SELECT id, name FROM categories";
 $catRes = mysqli_query($conn, $catSql);
 
@@ -68,27 +74,6 @@ $baseQS = http_build_query($params);
 ?>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const filterForm = document.querySelector('form[method="get"]');
-    const filterInputs = filterForm.querySelectorAll('input, select');
-    
-    filterInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            filterForm.submit();
-        });
-        
-        if (input.type === 'text' || input.type === 'number') {
-            let timeout;
-            input.addEventListener('input', function() {
-                clearTimeout(timeout);
-                timeout = setTimeout(() => {
-                    filterForm.submit();
-                }, 500);
-            });
-        }
-    });
-});
-
 function toggleAvailability(productId, currentStatus) {
     const newStatus = currentStatus === 1 ? 0 : 1;
     
@@ -137,52 +122,81 @@ function toggleAvailability(productId, currentStatus) {
 .pagination .page-item.active .page-link { background-color: #0d6efd; }
 .availability-checkbox { width: 20px; height: 20px; cursor: pointer; }
 .form-check-input:checked { background-color: #198754; border-color: #198754; }
+.filter-section {  padding: 15px; border-radius: 5px; margin-bottom: 20px; }
 </style>
 
 <div class='container w-75 mt-5'>
-    <h1 class=" mb-3">Admin Products Dashboard</h1>
+    <h1 class="mb-3">Admin Products Dashboard</h1>
 
-    <form method="get" class="row g-2 mb-4">
-        <div class="col-md-4">
-            <input type="text" name="name" class="form-control" placeholder="Product name" 
-                   value="<?=htmlspecialchars($nameFilter)?>">
-        </div>
-        <div class="col-md-2">
-            <input type="number" name="min_price" class="form-control" placeholder="Min price" 
-                   value="<?=htmlspecialchars($minPrice)?>">
-        </div>
-        <div class="col-md-2">
-            <input type="number" name="max_price" class="form-control" placeholder="Max price" 
-                   value="<?=htmlspecialchars($maxPrice)?>">
-        </div>
-        <div class="col-md-3">
-            <select name="category" class="form-select">
-                <option value="">All categories</option>
-                <?php 
-                // Reset pointer for categories result set
-                mysqli_data_seek($catRes, 0);
-                while($cat = mysqli_fetch_assoc($catRes)): ?>
-                    <option value="<?=$cat['id']?>" <?= $cat['id'] == $catFilter ? 'selected' : '' ?>>
-                        <?=htmlspecialchars($cat['name'])?>
-                    </option>
-                <?php endwhile; ?>
-            </select>
-        </div>
-        <div class="col-md-1">
-            <a href="add_product.php" class="btn btn-primary w-100">
-                <i class="fas fa-plus"></i> Add
+    <div class="filter-section">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <label for="name" class="form-label">Product Name</label>
+                <input type="text" name="name" class="form-control" placeholder="Search by name" 
+                       value="<?=htmlspecialchars($nameFilter)?>">
+            </div>
+            
+            <div class="col-md-2">
+                <label for="min_price" class="form-label">Min Price</label>
+                <input type="number" name="min_price" class="form-control" placeholder="Min price" 
+                       value="<?=htmlspecialchars($minPrice)?>">
+            </div>
+            
+            <div class="col-md-2">
+                <label for="max_price" class="form-label">Max Price</label>
+                <input type="number" name="max_price" class="form-control" placeholder="Max price" 
+                       value="<?=htmlspecialchars($maxPrice)?>">
+            </div>
+            
+            <div class="col-md-3">
+                <label for="category" class="form-label">Category</label>
+                <select name="category" class="form-select">
+                    <option value="">All categories</option>
+                    <?php 
+                    mysqli_data_seek($catRes, 0);
+                    while($cat = mysqli_fetch_assoc($catRes)): ?>
+                        <option value="<?=$cat['id']?>" <?= $cat['id'] == $catFilter ? 'selected' : '' ?>>
+                            <?=htmlspecialchars($cat['name'])?>
+                        </option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
+            
+            <div class="col-md-2">
+                <label for="availability" class="form-label">Availability</label>
+                <select name="availability" class="form-select">
+                    <option value="">All</option>
+                    <option value="1" <?= $availabilityFilter === 1 ? 'selected' : '' ?>>Available</option>
+                    <option value="0" <?= $availabilityFilter === 0 ? 'selected' : '' ?>>Out of Stock</option>
+                </select>
+            </div>
+            
+            <div class="col-md-12 d-flex justify-content-end mt-3">
+                <button type="submit" class="btn btn-outline-primary btn-sm me-2">
+                     Filters
+                </button>
+                <a href="?" class="btn btn-outline-secondary btn-sm">
+                     Clear
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <a href="add_product.php" class="btn btn-primary btn-sm">
+                 Add New Product
             </a>
         </div>
-    </form>
+        <div class="text-muted">
+            Total Products: <?= $totalProducts ?>
+        </div>
+    </div>
 
     <div class="card shadow-sm mb-4">
-        <div class="card-header d-flex justify-content-between align-items-center" style="background-color: #FFF; color: #000;">
-            <h5 class="m-2 fs-5">Products List</h5>
-            <span class="badge bg-light text-dark">Total: <?=$totalProducts?></span>
-        </div>
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-striped mt-3 align-middle">
+                <table class="table table-striped mt-3 align-middle table-bordered">
                     <thead>
                         <tr>
                             <th>Product</th>
@@ -218,13 +232,10 @@ function toggleAvailability(productId, currentStatus) {
                                                id="availability-<?=$id?>" 
                                                <?= $isAvailable === 1 ? 'checked' : '' ?>
                                                onclick="toggleAvailability(<?=$id?>, <?=$isAvailable?>)">
-                                        <label class="form-check-label ms-2 <?= $isAvailable === 1 ? 'text-success' : 'text-secondary' ?>" 
-                                               for="availability-<?=$id?>">
-                                        </label>
                                     </div>
                                 </td>
                                 <td>
-                                    <a href="edit_product.php?product_id=<?=$id?>" class="btn btn-sm btn-outline-warning me-2">
+                                    <a href="edit_product.php?product_id=<?=$id?>" class="btn btn-sm btn-outline-primary me-2">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <button class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?=$id?>">
@@ -261,7 +272,7 @@ function toggleAvailability(productId, currentStatus) {
                     <ul class="pagination justify-content-center">
                         <li class="page-item <?= $page == 1 ? 'disabled' : '' ?>">
                             <a class="page-link" href="?<?=$baseQS?>&page=<?=$page-1?>">
-                                <i class="fas fa-chevron-left"></i>
+                                prev
                             </a>
                         </li>
                         <?php for ($i = 1; $i <= $totalPages; $i++): ?>
@@ -271,7 +282,7 @@ function toggleAvailability(productId, currentStatus) {
                         <?php endfor; ?>
                         <li class="page-item <?= $page == $totalPages ? 'disabled' : '' ?>">
                             <a class="page-link" href="?<?=$baseQS?>&page=<?=$page+1?>">
-                                <i class="fas fa-chevron-right"></i>
+                                next
                             </a>
                         </li>
                     </ul>

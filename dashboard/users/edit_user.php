@@ -109,8 +109,8 @@ if (isset($_POST["btn"])) {
           $update_sql .= " WHERE id = $id";
 
           if (mysqli_query($conn, $update_sql)) {
-              echo '<div class="alert alert-success text-center mt-3">User updated successfully! Redirecting...</div>';
-              header("refresh:2;url=index.php");
+              echo '<div class="alert alert-success text-center mt-3 w-50 mx-auto">User updated successfully! Redirecting...</div>';
+              header("refresh:1;url=index.php");
               exit();
           } else {
               echo '<div class="alert alert-danger text-center mt-3">Update failed. Try again.</div>';
