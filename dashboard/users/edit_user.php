@@ -36,14 +36,13 @@ if (isset($_POST["btn"])) {
       $name = trim($_POST["Name"]);
       $email = trim($_POST["email"]);
       $password = $_POST["password"];
-      $role = isset($_POST["role"]) ? $_POST["role"] : ''; // Optional role field
+      $role = isset($_POST["role"]) ? $_POST["role"] : ''; 
       $imageNewName = '';
 
       $nameValue = $name;
       $emailValue = $email;
       $roleValue = $role;
 
-      // Validations
       if (empty($name)) {
           $nameErr = "Name is required";
       } elseif (!preg_match("/^[a-zA-Z ]+$/", $name)) {
@@ -55,7 +54,6 @@ if (isset($_POST["btn"])) {
       } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
           $emailErr = "Please enter a valid email address";
       } else {
-          // Ensure the email is unique except for the current user
           $sql_check_email = "SELECT * FROM users WHERE email = '$email' AND id != $id";
           $result_check = mysqli_query($conn, $sql_check_email);
           if (mysqli_num_rows($result_check) > 0) {
@@ -67,7 +65,6 @@ if (isset($_POST["btn"])) {
           $passwordErr = "Password must be at least 8 characters long";
       }
 
-      // Handle profile image upload
       if (isset($_FILES['profile-image']) && $_FILES['profile-image']['error'] == UPLOAD_ERR_OK) {
           $imageTmpName = $_FILES['profile-image']['tmp_name'];
           $imageName = basename($_FILES['profile-image']['name']);
@@ -75,21 +72,17 @@ if (isset($_POST["btn"])) {
           $imageNewName = uniqid() . "." . $imageExtension;
           $targetFilePath = $uploadDir . $imageNewName;
 
-          // Move the uploaded file to the upload directory
           if (!move_uploaded_file($imageTmpName, $targetFilePath)) {
               echo '<div class="alert alert-danger text-center mt-3">Failed to upload image.</div>';
-              $imageNewName = ''; // Don't update the image if upload fails
+              $imageNewName = ''; 
           }
       } else {
-          // Use the existing image if no new one is uploaded
           $imageNewName = $row['profile_pic'];
       }
 
-      // If there are no validation errors, update the user
       if (empty($nameErr) && empty($emailErr) && empty($passwordErr)) {
           $update_sql = "UPDATE users SET";
 
-          // Conditionally add fields to update only if they have been changed
           if (!empty($name)) {
               $update_sql .= " Name = '$name',";
           }
@@ -98,29 +91,23 @@ if (isset($_POST["btn"])) {
               $update_sql .= " email = '$email',";
           }
 
-          // If the password field is provided, hash the password and update it
           if (!empty($password)) {
               $hashedPassword = md5($password);
               $update_sql .= " password = '$hashedPassword',";
           }
 
-          // If the role is provided, update it
           if (!empty($role)) {
               $update_sql .= " role = '$role',";
           }
 
-          // If there is a new profile picture, update it
           if (!empty($imageNewName)) {
               $update_sql .= " profile_pic = '$imageNewName',";
           }
 
-          // Remove the trailing comma if no fields were updated
           $update_sql = rtrim($update_sql, ",");
 
-          // Add the WHERE clause to update the specific user
           $update_sql .= " WHERE id = $id";
 
-          // Execute the query
           if (mysqli_query($conn, $update_sql)) {
               echo '<div class="alert alert-success text-center mt-3">User updated successfully! Redirecting...</div>';
               header("refresh:2;url=index.php");
@@ -222,7 +209,7 @@ if (isset($_POST["btn"])) {
                    value="<?php echo $row["profile_pic"] ?>">
                    <?php
 if (!empty($row['profile_pic'])) {
-    $imagePath = '../../assets/images/users/' . $row['profile_pic']; // Corrected to use $row
+    $imagePath = '../../assets/images/users/' . $row['profile_pic']; 
     echo "<td><img src='$imagePath' alt='" . htmlspecialchars($row['name']) . "' width='50' height='50' style='object-fit: cover; border-radius: 8px;'></td>";
 } else {
     echo "<td>No image available</td>";
