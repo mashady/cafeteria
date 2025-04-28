@@ -48,7 +48,6 @@ $selected_user_id = $_GET['user_id'] ?? null;
 $start_date = $_GET['start_date'] ?? null;
 $end_date = $_GET['end_date'] ?? null;
 
-// Validate dates if provided
 if ($start_date && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $start_date)) {
     $start_date = null;
 }
@@ -56,7 +55,6 @@ if ($end_date && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $end_date)) {
     $end_date = null;
 }
 
-// Add one day to end_date to include the entire end date
 $end_date_query = $end_date ? date('Y-m-d', strtotime($end_date . ' +1 day')) : null;
 
 $count_query = "
