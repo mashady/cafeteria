@@ -3,9 +3,10 @@ session_start();
 
 /**
  * 
+ * 
  * ini_set('display_errors',1);
-ini_set('display_startup_errors',1);
-error_reporting(E_ALL);
+* ini_set('display_startup_errors',1);
+* error_reporting(E_ALL);
  * 
  */
 
@@ -28,16 +29,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_qty'])) {
     exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['clear_cart'])) {
+  $_SESSION['cart'] = [];
+  header("Location: " . $_SERVER['REQUEST_URI']);
+  exit;
+}
+
+
+
 $products_per_page = 5;
 $page  = isset($_GET['page']) ? max(1,(int)$_GET['page']) : 1;
 $offset = ($page - 1) * $products_per_page;
 
-$count_result   = mysqli_query($conn, "SELECT COUNT(*) as total FROM products");
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$search_condition = '';
+if (!empty($search)) {
+    $search = mysqli_real_escape_string($conn, $search);
+    $search_condition = " WHERE name LIKE '%$search%'";
+}
+
+$count_result   = mysqli_query($conn, "SELECT COUNT(*) as total FROM products" . $search_condition);
 $total_products = mysqli_fetch_assoc($count_result)['total'];
 $total_pages    = ceil($total_products / $products_per_page);
 
 $products = [];
-$result   = mysqli_query($conn, "SELECT * FROM products LIMIT $offset, $products_per_page");
+$result   = mysqli_query($conn, "SELECT * FROM products" . $search_condition . " LIMIT $offset, $products_per_page");
 while ($row = mysqli_fetch_assoc($result)) {
     $products[] = $row;
 }
@@ -145,14 +161,24 @@ if (isset($_POST["btn"])) {
 
 <div class="container mt-4">
   <?php if (isset($_SESSION['user'])): ?>
-    Hello, <?= htmlspecialchars($_SESSION['user']['name']) ?>
+    Hello, <?= $_SESSION['user']['name'] ?>
   <?php else: ?>
     Hello, Guest
   <?php endif; ?>
 
-  <h1 class="text-center mb-4">Place New Order</h1>
+  <h1 class="text-center mb-4">El cafeteria menu</h1>
 
-  <form action="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="POST" id="orderForm">
+  <form method="GET" class="mb-4">
+    <div class="input-group w-50 justify-content-center mx-auto">
+      <input type="text" name="search" class="form-control" placeholder="Search products..." value="<?= htmlspecialchars($search) ?>">
+      <button class="btn btn-primary" type="submit">Search</button>
+      <?php if (!empty($search)): ?>
+        <a href="?" class="btn btn-outline-secondary">Clear</a>
+      <?php endif; ?>
+    </div>
+  </form>
+
+  <form action="<?= $_SERVER['PHP_SELF'] ?>" method="POST" id="orderForm">
     <div class="row">
       <div class="col-md-4 mb-4">
         <div class="card shadow-sm sticky-top" style="top:20px">
@@ -160,7 +186,7 @@ if (isset($_POST["btn"])) {
             <h4 class="card-title mb-3">Order Summary</h4>
 
             <?php if (isset($error_message)): ?>
-              <div class="alert alert-danger"><?= htmlspecialchars($error_message) ?></div>
+              <div class="alert alert-danger"><?= $error_message ?></div>
             <?php endif; ?>
 
             <?php if ($_SESSION['user']['role'] === 'admin'): ?>
@@ -169,7 +195,7 @@ if (isset($_POST["btn"])) {
                 <select name="user_id" id="user_id" class="form-select">
                   <option value="">Choose User</option>
                   <?php foreach ($list_of_users as $u): ?>
-                    <option value="<?= $u['id'] ?>"><?= htmlspecialchars($u['name']) ?></option>
+                    <option value="<?= $u['id'] ?>"><?= $u['name'] ?></option>
                   <?php endforeach; ?>
                 </select>
               </div>
@@ -180,7 +206,7 @@ if (isset($_POST["btn"])) {
               <select name="room_id" id="room_id" class="form-select">
                 <option value="">Choose Room</option>
                 <?php foreach ($rooms as $r): ?>
-                  <option value="<?= $r['id'] ?>"><?= htmlspecialchars($r['name']) ?></option>
+                  <option value="<?= $r['id'] ?>"><?= $r['name'] ?></option>
                 <?php endforeach; ?>
               </select>
             </div>
@@ -197,6 +223,8 @@ if (isset($_POST["btn"])) {
             </div>
 
             <button type="submit" class="btn btn-success w-100" name="btn">Confirm Order</button>
+            <button type="submit" class="btn btn-light w-100 mt-2" name="clear_cart" value="1">Clear Cart</button>
+
           </div>
         </div>
       </div>
@@ -208,15 +236,15 @@ if (isset($_POST["btn"])) {
               <div class="card h-100 shadow-sm product-card">
                 <div class="product-img-container">
                 <?php if (!empty($p['image'])): ?>
-                  <img src="assets/images/products/<?= htmlspecialchars($p['image']) ?>"
+                  <img src="assets/images/products/<?= $p['image'] ?>"
                       class="product-img"
-                      alt="<?= htmlspecialchars($p['name']) ?>">
+                      alt="<?= $p['name'] ?>">
                 <?php else: ?>
                   <div class="text-muted">No image available</div>
                 <?php endif ?>
                 </div>
                 <div class="product-body text-center">
-                  <h5 class="card-title"><?= htmlspecialchars($p['name']) ?></h5>
+                  <h5 class="card-title"><?= $p['name'] ?></h5>
                   <p class="text-muted"><?= $p['price'] ?> EGP</p>
                   <?php if ($p['is_available'] == 0): ?>
                     <span class="badge bg-light text-dark">Not Available</span>
@@ -243,15 +271,15 @@ if (isset($_POST["btn"])) {
         <nav aria-label="Page navigation" class="mt-4">
           <ul class="pagination justify-content-center">
             <li class="page-item <?= $page>1?'':'disabled' ?>">
-              <a class="page-link" href="?page=<?= $page-1 ?>">prev</a>
+              <a class="page-link" href="?<?= !empty($search) ? 'search='.urlencode($search).'&' : '' ?>page=<?= $page-1 ?>">prev</a>
             </li>
             <?php for($i=1;$i<=$total_pages;$i++): ?>
               <li class="page-item <?= $i===$page?'active':'' ?>">
-                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
+                <a class="page-link" href="?<?= !empty($search) ? 'search='.urlencode($search).'&' : '' ?>page=<?= $i ?>"><?= $i ?></a>
               </li>
             <?php endfor; ?>
             <li class="page-item <?= $page<$total_pages?'':'disabled' ?>">
-              <a class="page-link" href="?page=<?= $page+1 ?>">next</a>
+              <a class="page-link" href="?<?= !empty($search) ? 'search='.urlencode($search).'&' : '' ?>page=<?= $page+1 ?>">next</a>
             </li>
           </ul>
         </nav>
