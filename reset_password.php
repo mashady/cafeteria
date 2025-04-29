@@ -17,7 +17,6 @@ if (isset($_GET['token'])) {
             $password = $_POST['password'];
             $confirm_password = $_POST['confirm_password'];
 
-            // تحقق أن الحقول ليست فارغة أولاً
             if (empty($password) || empty($confirm_password)) {
                 echo "<div class='alert alert-danger'>Both password fields are required.</div>";
             }

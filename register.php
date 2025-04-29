@@ -2,9 +2,9 @@
 // include '../includes/.php';
 include './includes/header.php';
 include './db/connect.php';
-error_reporting(E_ALL); // Report all errors
-ini_set('display_errors', 1); // Display them on the page
-ini_set('display_startup_errors', 1); // Also startup errors
+error_reporting(E_ALL); 
+ini_set('display_errors', 1); 
+ini_set('display_startup_errors', 1); 
 $nameErr = '';
 $emailErr = '';
 $nameValue = '';

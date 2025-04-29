@@ -66,9 +66,12 @@ if (isset($_POST["btn"])) {
     $notes      = $_POST["notes"];
     $total      = $_POST["total"] ?? 0;
 
-    if (empty($user_id) || empty($room_id)) {
-        $error_message = "Please select both a user and a room.";
-    } else {
+    if (!isset($_SESSION['user'])) {
+        $error_message = "Please login first to place an order.";
+    } else if (empty($user_id) || empty($room_id)) {
+      $error_message = "Please select both a user and a room.";
+
+    } else{
         $query = "
           INSERT INTO orders (user_id, room_id, notes, total, status)
           VALUES (?, ?, ?, ?, 'processing')
@@ -185,7 +188,7 @@ if (isset($_POST["btn"])) {
             <div class="mb-3">
               <label for="notes" class="form-label">Notes</label>
               <textarea name="notes" id="notes" class="form-control" rows="3"
-                        placeholder="e.g., less sugar..."></textarea>
+                        placeholder="aaaaaaaaaaadd notes here..."></textarea>
             </div>
 
             <div class="mb-3">

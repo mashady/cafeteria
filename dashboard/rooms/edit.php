@@ -17,7 +17,6 @@ $room = mysqli_fetch_assoc($result);
 if(isset($_POST["btn"])){
     $name = trim($_POST["name"]);
     
-    // Validation
     if(empty($name)) {
         $error = "Please provide a valid room name (1-100 characters).";
     } elseif(strlen($name) > 100) {

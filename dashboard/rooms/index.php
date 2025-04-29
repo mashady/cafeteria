@@ -3,7 +3,7 @@ include '../../includes/header.php';
 include '../../db/connect.php';
 include '../../includes/admin_auth.php';
 
-$limit = 10; 
+$limit = 5; 
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $page = max($page, 1); 
 $offset = ($page - 1) * $limit;
