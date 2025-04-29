@@ -5,7 +5,6 @@ include '../../includes/header.php';
 include '../../db/connect.php';
 include '../../includes/admin_auth.php';
 
-// 1. Fetch product
 $sql = "SELECT * FROM products WHERE id = $id";
 $result = mysqli_query($conn, $sql);
 
@@ -16,11 +15,9 @@ if (mysqli_num_rows($result) > 0) {
     exit;
 }
 
-// 2. Fetch categories
 $sql1 = "SELECT * FROM categories";
 $result1 = mysqli_query($conn, $sql1);
 
-// 3. Validation Functions
 function validateName($name) {
     return preg_match('/^[A-Z][A-Za-z0-9\\-\\s]{1,15}$/', $name);
 }
@@ -33,16 +30,14 @@ function validateImage($file) {
 $errors = [];
 $image_name = ''; 
 
-// 4. Handle POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $price = trim($_POST['price'] ?? '');
     $category = $_POST['category'] ?? '';
-
-    // Validate fields
+/*
     if (!validateName($name)) {
         $errors['name'] = "Product name must start with an uppercase letter and be 2-16 characters long.";
-    }
+    }*/
 
     if (!is_numeric($price) || $price <= 0) {
         $errors['price'] = "Price must be a positive number.";
@@ -52,7 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['category'] = "Category is required.";
     }
 
-    // Handle Image
     if (isset($_FILES['image']) && $_FILES['image']['size'] > 0) {
         if (!validateImage($_FILES['image'])) {
             $errors['image'] = "Only JPEG, PNG, GIF images allowed and max 2MB.";
@@ -65,13 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $target_path = $upload_dir . $image_name;
             move_uploaded_file($_FILES['image']['tmp_name'], $target_path);
 
-            // Delete old image
             if (!empty($product['image']) && file_exists($upload_dir . $product['image'])) {
                 unlink($upload_dir . $product['image']);
             }
         }
     } else {
-        // No new image uploaded, keep old image
         $image_name = $product['image'];
     }
 
@@ -101,7 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<!-- HTML FORM -->
 <div class="container w-50 mt-5">
     <h1 class="text-center text-muted">Edit Product</h1>
 
@@ -123,7 +114,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
 
     <form method="POST" enctype="multipart/form-data">
-        <!-- Name -->
         <div class="mb-3">
             <label for="name" class="form-label">Product Name</label>
             <input type="text" name="name" id="name" class="form-control" 
@@ -133,7 +123,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
 
-        <!-- Price -->
         <div class="mb-3">
             <label for="price" class="form-label">Product Price</label>
             <input type="number" name="price" id="price" class="form-control" step="0.01" min="0"
@@ -143,7 +132,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
 
-        <!-- Category -->
         <div class="mb-3">
             <label for="category" class="form-label">Category</label>
             <div class="d-flex justify-content-between align-items-center">
@@ -164,7 +152,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
 
-        <!-- Image -->
         <div class="mb-3">
             <label for="image" class="form-label">Product Image</label>
             <?php if (!empty($product['image'])): ?>
@@ -180,10 +167,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </div>
 
-        <!-- Buttons -->
-        <div class="my-5 d-flex justify-content-evenly">
-            <button type="submit" class="btn btn-success px-5">Update</button>
-            <button type="reset" class="btn btn-warning px-5">Reset</button>
+        <div class="my-5 d-flex">
+            <button type="submit" class="btn btn-primary px-5">Update</button>
         </div>
     </form>
 </div>

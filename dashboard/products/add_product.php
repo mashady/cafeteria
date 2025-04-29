@@ -7,12 +7,12 @@ $sql = "SELECT * FROM categories";
 $result = mysqli_query($conn, $sql);
 
 function validateName($name) {
-    return preg_match('/^[A-Z][A-Za-z0-9\-\s]{1,15}$/', $name);
+    //return preg_match('/^[A-Z][A-Za-z0-9\-\s]{1,15}$/', $name);
 }
 
 function validateImage($file) {
     $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
-    return in_array($file['type'], $allowedTypes) && $file['size'] <= 2 * 1024 * 1024;
+    return in_array($file['type'], $allowedTypes) && $file['size'] <= 20 * 1024 * 1024;
 }
 
 $errors = [];
@@ -23,10 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = trim($_POST['name'] ?? '');
     $price = trim($_POST['price'] ?? '');
     $category = $_POST['category'] ?? '';
-
+/*
     if (!validateName($name)) {
         $errors['name'] = "Product name must start with an uppercase letter and contain only letters, numbers, dashed, and spaces. It should be between 2 to 16 characters long.";
-    }
+    }*/
 
     if (!is_numeric($price) || $price <= 0) {
         $errors['price'] = "Price must be a positive number.";
@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script type="text/javascript">
         setTimeout(function() {
             window.location.href = "index.php";  
-        }, 3000);  
+        }, 1000);  
     </script>
 <?php endif; ?>
 

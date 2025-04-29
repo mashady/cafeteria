@@ -44,12 +44,10 @@ if ($availabilityFilter !== null) {
 }
 $whereSQL = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
-// Pagination setup
 $limit = 5;
 $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
 $offset = ($page - 1) * $limit;
 
-// Get total count
 $countSql = "SELECT COUNT(*) AS total FROM products p $whereSQL";
 $countRes = mysqli_query($conn, $countSql);
 $totalRow = mysqli_fetch_assoc($countRes);
@@ -64,7 +62,6 @@ $sql = "SELECT p.*, c.name as category_name
         LIMIT $limit OFFSET $offset";
 $result = mysqli_query($conn, $sql);
 
-// Get categories for dropdown
 $catSql = "SELECT id, name FROM categories";
 $catRes = mysqli_query($conn, $catSql);
 
